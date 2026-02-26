@@ -1,1864 +1,1066 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ms">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PhysicsAce — A-Level Physics Quiz</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<title>BM O Level — Ulang Kaji Tahun 11</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Fira+Mono:wght@400;700&display=swap');
 :root {
-  --bg: #050B1A;
-  --surface: #0A1628;
-  --surface2: #0F1F3D;
-  --border: #1E3A6E;
-  --accent: #00D4FF;
-  --accent2: #7B2FFF;
-  --accent3: #FF6B35;
-  --success: #00FF9F;
-  --danger: #FF3B6B;
-  --warning: #FFD700;
-  --text: #E8F4FF;
-  --text-dim: #7A9CC4;
-  --glow: 0 0 20px rgba(0,212,255,0.3);
-  --glow2: 0 0 30px rgba(123,47,255,0.3);
+  --bg:#0D1117;--surface:#161B22;--surface2:#21262D;--border:#30363D;
+  --green:#00E676;--blue:#58A6FF;--purple:#BC8CFF;--orange:#FFA657;
+  --red:#FF7B72;--yellow:#E3B341;--pink:#F778BA;--teal:#39D353;
+  --text:#F0F6FC;--dim:#8B949E;
 }
-* { margin:0; padding:0; box-sizing:border-box; }
-body {
-  font-family: 'Outfit', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-/* Animated starfield background */
-body::before {
-  content:'';
-  position:fixed;
-  inset:0;
-  background: radial-gradient(ellipse at 20% 50%, rgba(123,47,255,0.08) 0%, transparent 50%),
-              radial-gradient(ellipse at 80% 20%, rgba(0,212,255,0.06) 0%, transparent 50%),
-              radial-gradient(ellipse at 60% 80%, rgba(255,107,53,0.04) 0%, transparent 50%);
-  pointer-events:none;
-  z-index:0;
-}
-.stars {
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  z-index:0;
-}
-.star {
-  position:absolute;
-  border-radius:50%;
-  background:#fff;
-  animation: twinkle var(--d,3s) var(--delay,0s) infinite ease-in-out;
-}
-@keyframes twinkle {
-  0%,100%{opacity:0.1;transform:scale(1);}
-  50%{opacity:0.8;transform:scale(1.2);}
-}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 15% 40%,rgba(88,166,255,0.07) 0%,transparent 55%),radial-gradient(ellipse at 85% 20%,rgba(188,140,255,0.06) 0%,transparent 55%);pointer-events:none;z-index:0;}
 
-/* Screens */
-.screen { position:relative; z-index:1; display:none; min-height:100vh; }
-.screen.active { display:flex; flex-direction:column; }
+.screen{display:none;position:relative;z-index:1;min-height:100vh;}
+.screen.active{display:flex;flex-direction:column;}
 
-/* ===== LANDING SCREEN ===== */
-#landing {
-  align-items:center;
-  justify-content:center;
-  padding:40px 20px;
-  text-align:center;
-}
-.logo-mark {
-  font-family:'Space Mono',monospace;
-  font-size:clamp(2.5rem,8vw,5rem);
-  font-weight:700;
-  background: linear-gradient(135deg, var(--accent), var(--accent2), var(--accent3));
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
-  letter-spacing:-2px;
-  line-height:1;
-  margin-bottom:8px;
-}
-.logo-sub {
-  font-size:clamp(0.8rem,2vw,1rem);
-  color:var(--text-dim);
-  letter-spacing:4px;
-  text-transform:uppercase;
-  font-weight:500;
-  margin-bottom:50px;
-}
-.landing-card {
-  background: linear-gradient(135deg, rgba(10,22,40,0.9), rgba(15,31,61,0.9));
-  border:1px solid var(--border);
-  border-radius:20px;
-  padding:40px;
-  max-width:500px;
-  width:100%;
-  box-shadow: 0 0 40px rgba(0,212,255,0.1), 0 20px 60px rgba(0,0,0,0.5);
-  backdrop-filter:blur(10px);
-}
-.landing-card h2 {
-  font-size:1.3rem;
-  font-weight:600;
-  margin-bottom:8px;
-  color:var(--accent);
-}
-.landing-card p {
-  font-size:0.9rem;
-  color:var(--text-dim);
-  margin-bottom:30px;
-}
-.input-wrap {
-  position:relative;
-  margin-bottom:20px;
-}
-.input-wrap input {
-  width:100%;
-  background: rgba(30,58,110,0.3);
-  border:2px solid var(--border);
-  border-radius:12px;
-  padding:16px 20px;
-  font-size:1rem;
-  font-family:'Outfit',sans-serif;
-  color:var(--text);
-  outline:none;
-  transition:all 0.3s;
-}
-.input-wrap input:focus {
-  border-color:var(--accent);
-  box-shadow:var(--glow);
-  background:rgba(0,212,255,0.05);
-}
-.input-wrap input::placeholder { color:var(--text-dim); }
-.btn-primary {
-  background: linear-gradient(135deg, var(--accent), var(--accent2));
-  border:none;
-  border-radius:12px;
-  padding:16px 32px;
-  font-size:1rem;
-  font-weight:700;
-  font-family:'Outfit',sans-serif;
-  color:#fff;
-  cursor:pointer;
-  width:100%;
-  transition:all 0.3s;
-  letter-spacing:1px;
-  text-transform:uppercase;
-  position:relative;
-  overflow:hidden;
-}
-.btn-primary::before {
-  content:'';
-  position:absolute;
-  inset:0;
-  background:linear-gradient(135deg,rgba(255,255,255,0.2),transparent);
-  opacity:0;
-  transition:opacity 0.3s;
-}
-.btn-primary:hover::before { opacity:1; }
-.btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 25px rgba(0,212,255,0.4); }
-.btn-primary:active { transform:translateY(0); }
-.stats-preview {
-  display:flex;
-  gap:20px;
-  margin-top:30px;
-  justify-content:center;
-}
-.stat-chip {
-  background:rgba(0,212,255,0.08);
-  border:1px solid rgba(0,212,255,0.2);
-  border-radius:8px;
-  padding:10px 16px;
-  font-size:0.8rem;
-  color:var(--accent);
-  text-align:center;
-}
-.stat-chip span {
-  display:block;
-  font-size:1.4rem;
-  font-weight:800;
-  font-family:'Space Mono',monospace;
-}
+/* LANDING */
+#landing{align-items:center;justify-content:center;padding:40px 20px;text-align:center;}
+.brand{font-size:clamp(2rem,8vw,4.5rem);font-weight:900;background:linear-gradient(135deg,var(--blue),var(--purple),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1;margin-bottom:6px;}
+.brand-sub{font-size:clamp(0.75rem,2vw,0.95rem);color:var(--dim);letter-spacing:3px;text-transform:uppercase;margin-bottom:48px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:36px;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.4);}
+.card h2{font-size:1.1rem;font-weight:700;margin-bottom:6px;color:var(--blue);}
+.card p{font-size:0.85rem;color:var(--dim);margin-bottom:28px;line-height:1.6;}
+input[type=text]{width:100%;background:var(--surface2);border:2px solid var(--border);border-radius:10px;padding:14px 18px;font-size:0.95rem;font-family:'Poppins',sans-serif;color:var(--text);outline:none;transition:all 0.3s;margin-bottom:16px;}
+input[type=text]:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(88,166,255,0.15);}
+input::placeholder{color:var(--dim);}
+.btn-main{background:linear-gradient(135deg,var(--blue),var(--purple));border:none;border-radius:10px;padding:14px 28px;font-size:0.95rem;font-weight:700;font-family:'Poppins',sans-serif;color:#fff;cursor:pointer;width:100%;transition:all 0.3s;}
+.btn-main:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(88,166,255,0.35);}
+.chips{display:flex;gap:12px;justify-content:center;margin-top:24px;flex-wrap:wrap;}
+.chip{background:rgba(88,166,255,0.08);border:1px solid rgba(88,166,255,0.2);border-radius:8px;padding:8px 14px;font-size:0.78rem;color:var(--blue);text-align:center;}
+.chip span{display:block;font-size:1.2rem;font-weight:800;font-family:'Fira Mono',monospace;}
 
-/* ===== TOPIC SELECT SCREEN ===== */
-#topicselect {
-  padding:30px 20px;
-  max-width:1100px;
-  margin:0 auto;
-  width:100%;
-}
-.header-bar {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  margin-bottom:30px;
-  flex-wrap:wrap;
-  gap:15px;
-}
-.welcome-text h1 {
-  font-size:clamp(1.4rem,4vw,2rem);
-  font-weight:800;
-}
-.welcome-text h1 span { color:var(--accent); }
-.welcome-text p { color:var(--text-dim); font-size:0.9rem; margin-top:4px; }
-.btn-secondary {
-  background:transparent;
-  border:1px solid var(--border);
-  border-radius:10px;
-  padding:10px 20px;
-  font-size:0.85rem;
-  font-family:'Outfit',sans-serif;
-  color:var(--text-dim);
-  cursor:pointer;
-  transition:all 0.3s;
-}
-.btn-secondary:hover { border-color:var(--accent); color:var(--accent); }
+/* SKILL SELECT */
+#skillselect{padding:28px 20px;max-width:1100px;margin:0 auto;width:100%;}
+.top-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px;}
+.page-title{font-size:clamp(1.2rem,4vw,1.8rem);font-weight:800;}
+.page-title span{color:var(--blue);}
+.page-sub{font-size:0.82rem;color:var(--dim);margin-top:3px;}
+.btn-ghost{background:transparent;border:1px solid var(--border);border-radius:8px;padding:9px 18px;font-size:0.82rem;font-family:'Poppins',sans-serif;color:var(--dim);cursor:pointer;transition:all 0.3s;}
+.btn-ghost:hover{border-color:var(--blue);color:var(--blue);}
 
-.section-label {
-  font-size:0.75rem;
-  letter-spacing:3px;
-  text-transform:uppercase;
-  color:var(--text-dim);
-  margin-bottom:16px;
-  font-weight:600;
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-.section-label::after {
-  content:'';
-  flex:1;
-  height:1px;
-  background:linear-gradient(90deg,var(--border),transparent);
-}
+.sec-label{font-size:0.7rem;letter-spacing:3px;text-transform:uppercase;color:var(--dim);font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.sec-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent);}
 
-.topics-grid {
-  display:grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px,1fr));
-  gap:16px;
-  margin-bottom:30px;
-}
-.topic-card {
-  background: linear-gradient(135deg, rgba(10,22,40,0.95), rgba(15,31,61,0.8));
-  border:1px solid var(--border);
-  border-radius:16px;
-  padding:20px;
-  cursor:pointer;
-  transition:all 0.3s;
-  position:relative;
-  overflow:hidden;
-}
-.topic-card::before {
-  content:'';
-  position:absolute;
-  top:0;
-  left:0;
-  right:0;
-  height:3px;
-  background:var(--topic-color, var(--accent));
-  transform:scaleX(0);
-  transition:transform 0.3s;
-}
-.topic-card:hover::before, .topic-card.selected::before { transform:scaleX(1); }
-.topic-card:hover {
-  border-color:var(--topic-color, var(--accent));
-  transform:translateY(-3px);
-  box-shadow:0 8px 30px rgba(0,0,0,0.3);
-}
-.topic-card.selected {
-  border-color:var(--topic-color, var(--accent));
-  background: linear-gradient(135deg, rgba(0,212,255,0.08), rgba(15,31,61,0.9));
-  box-shadow:0 0 20px rgba(0,212,255,0.15);
-}
-.topic-icon {
-  font-size:1.8rem;
-  margin-bottom:10px;
-  display:block;
-}
-.topic-name {
-  font-size:1rem;
-  font-weight:700;
-  margin-bottom:4px;
-}
-.topic-sub {
-  font-size:0.78rem;
-  color:var(--text-dim);
-  line-height:1.4;
-}
-.topic-badge {
-  position:absolute;
-  top:12px;
-  right:12px;
-  background:rgba(0,0,0,0.4);
-  border:1px solid var(--border);
-  border-radius:6px;
-  padding:3px 8px;
-  font-size:0.7rem;
-  font-family:'Space Mono',monospace;
-  color:var(--text-dim);
-}
-.topic-progress {
-  margin-top:12px;
-  height:4px;
-  background:rgba(255,255,255,0.08);
-  border-radius:2px;
-  overflow:hidden;
-}
-.topic-progress-fill {
-  height:100%;
-  background:var(--topic-color,var(--accent));
-  border-radius:2px;
-  transition:width 0.5s ease;
-  box-shadow:0 0 8px var(--topic-color,var(--accent));
-}
-.mode-selector {
-  display:flex;
-  gap:12px;
-  margin-bottom:30px;
-  flex-wrap:wrap;
-}
-.mode-btn {
-  background:rgba(30,58,110,0.2);
-  border:1px solid var(--border);
-  border-radius:10px;
-  padding:12px 20px;
-  cursor:pointer;
-  transition:all 0.3s;
-  font-family:'Outfit',sans-serif;
-  color:var(--text-dim);
-  font-size:0.9rem;
-  font-weight:500;
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-.mode-btn.active {
-  background:rgba(0,212,255,0.1);
-  border-color:var(--accent);
-  color:var(--accent);
-}
-.start-quiz-bar {
-  position:sticky;
-  bottom:0;
-  background:linear-gradient(to top, rgba(5,11,26,1) 60%, transparent);
-  padding:20px 0 10px;
-  display:flex;
-  justify-content:center;
-  gap:15px;
-}
-.btn-start {
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  border:none;
-  border-radius:14px;
-  padding:16px 48px;
-  font-size:1.1rem;
-  font-weight:800;
-  font-family:'Outfit',sans-serif;
-  color:#fff;
-  cursor:pointer;
-  transition:all 0.3s;
-  letter-spacing:1px;
-  text-transform:uppercase;
-}
-.btn-start:hover { transform:translateY(-3px); box-shadow:0 10px 30px rgba(0,212,255,0.5); }
-.btn-start:disabled { opacity:0.4; pointer-events:none; }
+.skills-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-bottom:28px;}
+.skill-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;cursor:pointer;transition:all 0.3s;position:relative;overflow:hidden;}
+.skill-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--c,var(--blue));transform:scaleX(0);transition:transform 0.3s;}
+.skill-card:hover::before,.skill-card.sel::before{transform:scaleX(1);}
+.skill-card:hover{border-color:var(--c,var(--blue));transform:translateY(-2px);}
+.skill-card.sel{border-color:var(--c,var(--blue));background:rgba(88,166,255,0.06);}
+.sk-icon{font-size:1.6rem;margin-bottom:8px;display:block;}
+.sk-name{font-size:0.95rem;font-weight:700;margin-bottom:3px;}
+.sk-sub{font-size:0.75rem;color:var(--dim);line-height:1.4;}
+.sk-count{position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.4);border:1px solid var(--border);border-radius:6px;padding:2px 8px;font-size:0.68rem;font-family:'Fira Mono',monospace;color:var(--dim);}
 
-/* ===== QUIZ SCREEN ===== */
-#quiz {
-  padding:20px;
-  max-width:900px;
-  margin:0 auto;
-  width:100%;
-}
-.quiz-top {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  margin-bottom:20px;
-  flex-wrap:wrap;
-  gap:12px;
-}
-.quiz-meta {
-  display:flex;
-  align-items:center;
-  gap:12px;
-  flex-wrap:wrap;
-}
-.quiz-topic-tag {
-  background:rgba(0,212,255,0.1);
-  border:1px solid rgba(0,212,255,0.3);
-  border-radius:8px;
-  padding:6px 14px;
-  font-size:0.8rem;
-  color:var(--accent);
-  font-weight:600;
-}
-.quiz-progress-text {
-  font-family:'Space Mono',monospace;
-  font-size:0.85rem;
-  color:var(--text-dim);
-}
-.timer-ring {
-  position:relative;
-  width:70px;
-  height:70px;
-  flex-shrink:0;
-}
-.timer-ring svg { transform:rotate(-90deg); }
-.timer-ring circle.bg {
-  fill:none;
-  stroke:rgba(255,255,255,0.08);
-  stroke-width:5;
-}
-.timer-ring circle.progress {
-  fill:none;
-  stroke:var(--accent);
-  stroke-width:5;
-  stroke-linecap:round;
-  transition:stroke-dashoffset 1s linear, stroke 0.5s;
-}
-.timer-text {
-  position:absolute;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-family:'Space Mono',monospace;
-  font-size:1rem;
-  font-weight:700;
-}
-.quiz-progress-bar {
-  height:6px;
-  background:rgba(255,255,255,0.06);
-  border-radius:3px;
-  margin-bottom:25px;
-  overflow:hidden;
-}
-.quiz-progress-fill {
-  height:100%;
-  background:linear-gradient(90deg,var(--accent),var(--accent2));
-  border-radius:3px;
-  transition:width 0.5s ease;
-  box-shadow:0 0 10px var(--accent);
-}
-.question-card {
-  background:linear-gradient(135deg,rgba(10,22,40,0.95),rgba(15,31,61,0.8));
-  border:1px solid var(--border);
-  border-radius:20px;
-  padding:30px;
-  margin-bottom:20px;
-  box-shadow:0 10px 40px rgba(0,0,0,0.4);
-  animation:slideIn 0.4s ease;
-}
-@keyframes slideIn {
-  from{opacity:0;transform:translateY(20px);}
-  to{opacity:1;transform:translateY(0);}
-}
-.q-type-tag {
-  display:inline-block;
-  background:rgba(123,47,255,0.15);
-  border:1px solid rgba(123,47,255,0.4);
-  border-radius:6px;
-  padding:4px 12px;
-  font-size:0.72rem;
-  color:#A78BFA;
-  letter-spacing:2px;
-  text-transform:uppercase;
-  font-weight:600;
-  margin-bottom:16px;
-}
-.question-text {
-  font-size:clamp(1rem,2.5vw,1.15rem);
-  font-weight:600;
-  line-height:1.6;
-  color:var(--text);
-  margin-bottom:24px;
-}
-.hint-btn {
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  background:transparent;
-  border:1px solid rgba(255,215,0,0.3);
-  border-radius:8px;
-  padding:6px 14px;
-  font-size:0.8rem;
-  color:var(--warning);
-  cursor:pointer;
-  font-family:'Outfit',sans-serif;
-  transition:all 0.3s;
-  margin-bottom:20px;
-}
-.hint-btn:hover { background:rgba(255,215,0,0.1); }
-.hint-box {
-  background:rgba(255,215,0,0.05);
-  border:1px solid rgba(255,215,0,0.2);
-  border-radius:10px;
-  padding:12px 16px;
-  font-size:0.85rem;
-  color:#FFE8A0;
-  margin-bottom:20px;
-  display:none;
-  animation:fadeIn 0.3s ease;
-}
-@keyframes fadeIn { from{opacity:0;transform:translateY(-5px);}to{opacity:1;transform:translateY(0);} }
+.subtopic-panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px;display:none;}
+.subtopic-panel.open{display:block;}
+.st-title{font-size:0.85rem;font-weight:700;margin-bottom:14px;color:var(--yellow);}
+.st-grid{display:flex;flex-wrap:wrap;gap:8px;}
+.st-chip{background:var(--surface2);border:2px solid var(--border);border-radius:8px;padding:7px 14px;font-size:0.8rem;cursor:pointer;transition:all 0.25s;font-family:'Poppins',sans-serif;color:var(--text);}
+.st-chip:hover{border-color:var(--yellow);color:var(--yellow);}
+.st-chip.active{border-color:var(--yellow);background:rgba(227,179,65,0.1);color:var(--yellow);}
 
-.options-grid {
-  display:grid;
-  gap:12px;
-}
-.option-btn {
-  background:rgba(30,58,110,0.2);
-  border:2px solid var(--border);
-  border-radius:14px;
-  padding:16px 20px;
-  text-align:left;
-  cursor:pointer;
-  transition:all 0.25s;
-  font-family:'Outfit',sans-serif;
-  font-size:0.95rem;
-  color:var(--text);
-  display:flex;
-  align-items:center;
-  gap:14px;
-  position:relative;
-  overflow:hidden;
-}
-.option-btn::before {
-  content:'';
-  position:absolute;
-  inset:0;
-  opacity:0;
-  transition:opacity 0.3s;
-  background:linear-gradient(135deg,rgba(0,212,255,0.1),transparent);
-}
-.option-btn:hover::before { opacity:1; }
-.option-btn:hover {
-  border-color:var(--accent);
-  transform:translateX(5px);
-  box-shadow:0 4px 20px rgba(0,212,255,0.15);
-}
-.option-btn:disabled { cursor:default; }
-.option-key {
-  width:34px;
-  height:34px;
-  border-radius:8px;
-  background:rgba(0,0,0,0.3);
-  border:1px solid rgba(255,255,255,0.15);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-family:'Space Mono',monospace;
-  font-size:0.8rem;
-  font-weight:700;
-  flex-shrink:0;
-  transition:all 0.25s;
-}
-.option-btn:hover .option-key {
-  background:var(--accent);
-  border-color:var(--accent);
-  color:#000;
-}
-.option-btn.correct {
-  border-color:var(--success) !important;
-  background:rgba(0,255,159,0.08) !important;
-  box-shadow:0 0 20px rgba(0,255,159,0.2) !important;
-  transform:none !important;
-}
-.option-btn.correct .option-key {
-  background:var(--success) !important;
-  border-color:var(--success) !important;
-  color:#000 !important;
-}
-.option-btn.wrong {
-  border-color:var(--danger) !important;
-  background:rgba(255,59,107,0.08) !important;
-  box-shadow:0 0 20px rgba(255,59,107,0.2) !important;
-}
-.option-btn.wrong .option-key {
-  background:var(--danger) !important;
-  border-color:var(--danger) !important;
-  color:#fff !important;
-}
-.option-btn.reveal { 
-  border-color:rgba(0,255,159,0.4) !important;
-  background:rgba(0,255,159,0.04) !important;
-}
+.start-bar{position:sticky;bottom:0;background:linear-gradient(to top,var(--bg) 60%,transparent);padding:20px 0 10px;display:flex;justify-content:center;}
+.btn-start{background:linear-gradient(135deg,var(--blue),var(--purple));border:none;border-radius:12px;padding:15px 44px;font-size:1rem;font-weight:700;font-family:'Poppins',sans-serif;color:#fff;cursor:pointer;transition:all 0.3s;}
+.btn-start:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(88,166,255,0.4);}
+.btn-start:disabled{opacity:0.35;pointer-events:none;}
 
-/* Feedback */
-.feedback-card {
-  border-radius:16px;
-  padding:24px;
-  margin-top:20px;
-  display:none;
-  animation:slideIn 0.4s ease;
-}
-.feedback-card.correct-fb {
-  background:rgba(0,255,159,0.08);
-  border:1px solid rgba(0,255,159,0.25);
-}
-.feedback-card.wrong-fb {
-  background:rgba(255,59,107,0.08);
-  border:1px solid rgba(255,59,107,0.25);
-}
-.fb-header {
-  display:flex;
-  align-items:center;
-  gap:10px;
-  font-size:1.1rem;
-  font-weight:800;
-  margin-bottom:12px;
-}
-.fb-header .icon { font-size:1.5rem; }
-.fb-explanation {
-  font-size:0.9rem;
-  color:#C8E6FF;
-  line-height:1.7;
-}
-.fb-formula {
-  background:rgba(0,0,0,0.3);
-  border-radius:8px;
-  padding:10px 16px;
-  margin-top:12px;
-  font-family:'Space Mono',monospace;
-  font-size:0.85rem;
-  color:var(--warning);
-  border-left:3px solid var(--warning);
-}
-.btn-next {
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  border:none;
-  border-radius:12px;
-  padding:14px 32px;
-  font-size:1rem;
-  font-weight:700;
-  font-family:'Outfit',sans-serif;
-  color:#fff;
-  cursor:pointer;
-  transition:all 0.3s;
-  margin-top:16px;
-  display:none;
-}
-.btn-next:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,212,255,0.4); }
+/* QUIZ */
+#quiz{padding:20px;max-width:860px;margin:0 auto;width:100%;}
+.q-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+.q-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.q-tag{background:rgba(88,166,255,0.1);border:1px solid rgba(88,166,255,0.3);border-radius:7px;padding:5px 12px;font-size:0.75rem;color:var(--blue);font-weight:600;}
+.q-num{font-family:'Fira Mono',monospace;font-size:0.82rem;color:var(--dim);}
+.streak-box{display:flex;align-items:center;gap:8px;}
+.streak{background:linear-gradient(135deg,#FF6B35,#FFD700);border-radius:7px;padding:4px 10px;font-size:0.78rem;font-weight:800;color:#000;font-family:'Fira Mono',monospace;}
+.pts{font-family:'Fira Mono',monospace;font-size:0.82rem;color:var(--dim);}
+.timer{display:flex;align-items:center;gap:6px;font-family:'Fira Mono',monospace;font-size:1rem;font-weight:700;min-width:45px;}
+.timer.warn{color:var(--red);}
 
-/* Streak */
-.streak-bar {
-  display:flex;
-  align-items:center;
-  gap:8px;
-  margin-bottom:12px;
-}
-.streak-badge {
-  background:linear-gradient(135deg,#FF6B35,#FFD700);
-  border-radius:8px;
-  padding:5px 12px;
-  font-size:0.8rem;
-  font-weight:800;
-  color:#000;
-  font-family:'Space Mono',monospace;
-}
-.score-display {
-  font-family:'Space Mono',monospace;
-  font-size:0.85rem;
-  color:var(--text-dim);
-}
-.hearts {
-  display:flex;
-  gap:4px;
-}
+.q-pbar{height:5px;background:rgba(255,255,255,0.06);border-radius:3px;margin-bottom:22px;overflow:hidden;}
+.q-pfill{height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));border-radius:3px;transition:width 0.5s;}
 
-/* ===== RESULTS SCREEN ===== */
-#results {
-  align-items:center;
-  justify-content:center;
-  padding:40px 20px;
-  text-align:center;
-}
-.results-card {
-  background:linear-gradient(135deg,rgba(10,22,40,0.95),rgba(15,31,61,0.9));
-  border:1px solid var(--border);
-  border-radius:24px;
-  padding:40px;
-  max-width:600px;
-  width:100%;
-  box-shadow:0 20px 60px rgba(0,0,0,0.5);
-}
-.grade-circle {
-  width:120px;
-  height:120px;
-  border-radius:50%;
-  margin:0 auto 20px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:3rem;
-  font-weight:900;
-  font-family:'Space Mono',monospace;
-  position:relative;
-  animation:popIn 0.5s cubic-bezier(0.175,0.885,0.32,1.275);
-}
-@keyframes popIn {
-  from{opacity:0;transform:scale(0.5);}
-  to{opacity:1;transform:scale(1);}
-}
-.grade-A { background:linear-gradient(135deg,#00FF9F22,#00FF9F11); border:3px solid var(--success); color:var(--success); }
-.grade-B { background:linear-gradient(135deg,#00D4FF22,#00D4FF11); border:3px solid var(--accent); color:var(--accent); }
-.grade-C { background:linear-gradient(135deg,#FFD70022,#FFD70011); border:3px solid var(--warning); color:var(--warning); }
-.grade-D { background:linear-gradient(135deg,#FF6B3522,#FF6B3511); border:3px solid var(--accent3); color:var(--accent3); }
-.grade-E { background:linear-gradient(135deg,#FF3B6B22,#FF3B6B11); border:3px solid var(--danger); color:var(--danger); }
-.results-title { font-size:1.6rem; font-weight:800; margin-bottom:6px; }
-.results-sub { color:var(--text-dim); font-size:0.9rem; margin-bottom:30px; }
-.results-stats {
-  display:grid;
-  grid-template-columns:1fr 1fr 1fr;
-  gap:16px;
-  margin-bottom:30px;
-}
-.res-stat {
-  background:rgba(0,0,0,0.3);
-  border-radius:12px;
-  padding:16px;
-}
-.res-stat-val {
-  font-family:'Space Mono',monospace;
-  font-size:1.5rem;
-  font-weight:700;
-  color:var(--accent);
-}
-.res-stat-lbl {
-  font-size:0.75rem;
-  color:var(--text-dim);
-  margin-top:4px;
-}
-.topic-breakdown {
-  text-align:left;
-  margin-bottom:24px;
-}
-.topic-breakdown h3 {
-  font-size:0.8rem;
-  letter-spacing:2px;
-  text-transform:uppercase;
-  color:var(--text-dim);
-  margin-bottom:12px;
-}
-.breakdown-row {
-  display:flex;
-  align-items:center;
-  gap:12px;
-  margin-bottom:8px;
-  font-size:0.85rem;
-}
-.breakdown-row span { flex:1; }
-.breakdown-bar {
-  width:120px;
-  height:6px;
-  background:rgba(255,255,255,0.08);
-  border-radius:3px;
-  overflow:hidden;
-  flex-shrink:0;
-}
-.breakdown-fill {
-  height:100%;
-  border-radius:3px;
-  transition:width 1s ease;
-}
-.results-actions {
-  display:flex;
-  gap:12px;
-  justify-content:center;
-  flex-wrap:wrap;
-}
-.btn-retry {
-  background:transparent;
-  border:2px solid var(--accent);
-  border-radius:12px;
-  padding:12px 28px;
-  font-size:0.9rem;
-  font-weight:700;
-  font-family:'Outfit',sans-serif;
-  color:var(--accent);
-  cursor:pointer;
-  transition:all 0.3s;
-}
-.btn-retry:hover { background:rgba(0,212,255,0.1); }
-.motivational {
-  font-size:1.1rem;
-  font-weight:600;
-  margin-bottom:5px;
-}
-.confetti-container {
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  z-index:100;
-}
-.confetti-piece {
-  position:absolute;
-  width:10px;
-  height:10px;
-  top:-10px;
-  animation:confettiFall var(--dur,3s) var(--delay,0s) linear forwards;
-}
-@keyframes confettiFall {
-  to{transform:translateY(105vh) rotate(720deg);opacity:0;}
-}
+.q-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:26px;margin-bottom:18px;animation:fadeUp 0.4s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+.q-type{display:inline-block;background:rgba(188,140,255,0.12);border:1px solid rgba(188,140,255,0.35);border-radius:6px;padding:3px 10px;font-size:0.68rem;color:var(--purple);letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:14px;}
+.q-text{font-size:clamp(0.9rem,2vw,1.02rem);font-weight:500;line-height:1.65;color:var(--text);margin-bottom:20px;}
+.q-context{background:var(--surface2);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;padding:12px 16px;margin-bottom:18px;font-size:0.85rem;color:#C9D1D9;font-style:italic;line-height:1.7;}
 
-/* ===== PROGRESS SCREEN ===== */
-#progress-screen {
-  padding:30px 20px;
-  max-width:900px;
-  margin:0 auto;
-  width:100%;
-}
-.progress-header {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  margin-bottom:30px;
-}
-.prog-section { margin-bottom:30px; }
-.prog-title {
-  font-size:1.3rem;
-  font-weight:800;
-  margin-bottom:6px;
-}
-.prog-sub { color:var(--text-dim); font-size:0.85rem; margin-bottom:20px; }
-.history-item {
-  background:rgba(10,22,40,0.9);
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:16px 20px;
-  margin-bottom:10px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  flex-wrap:wrap;
-  gap:10px;
-}
-.hi-topic { font-weight:700; font-size:0.95rem; }
-.hi-time { font-size:0.8rem; color:var(--text-dim); margin-top:2px; }
-.hi-score {
-  font-family:'Space Mono',monospace;
-  font-size:1.1rem;
-  font-weight:700;
-}
-.hi-grade {
-  padding:4px 12px;
-  border-radius:6px;
-  font-size:0.8rem;
-  font-weight:800;
-  font-family:'Space Mono',monospace;
-}
-.overall-progress-bar {
-  height:12px;
-  background:rgba(255,255,255,0.08);
-  border-radius:6px;
-  overflow:hidden;
-  margin-bottom:8px;
-}
-.overall-fill {
-  height:100%;
-  background:linear-gradient(90deg,var(--accent),var(--accent2));
-  border-radius:6px;
-  box-shadow:0 0 10px var(--accent);
-  transition:width 1s ease;
-}
-.overall-text {
-  font-size:0.85rem;
-  color:var(--text-dim);
-  display:flex;
-  justify-content:space-between;
-}
-.topic-perf-grid {
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-  gap:14px;
-  margin-top:16px;
-}
-.tpg-card {
-  background:rgba(10,22,40,0.8);
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:16px;
-}
-.tpg-name { font-size:0.9rem; font-weight:700; margin-bottom:8px; }
-.tpg-stats { display:flex; justify-content:space-between; font-size:0.8rem; color:var(--text-dim); margin-bottom:8px; }
-.tpg-bar { height:6px; background:rgba(255,255,255,0.08); border-radius:3px; overflow:hidden; }
-.tpg-fill { height:100%; border-radius:3px; transition:width 1s ease; }
+.hint-btn{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid rgba(227,179,65,0.3);border-radius:7px;padding:5px 12px;font-size:0.78rem;color:var(--yellow);cursor:pointer;font-family:'Poppins',sans-serif;transition:all 0.3s;margin-bottom:16px;}
+.hint-btn:hover{background:rgba(227,179,65,0.08);}
+.hint-box{background:rgba(227,179,65,0.06);border:1px solid rgba(227,179,65,0.2);border-radius:8px;padding:10px 14px;font-size:0.82rem;color:#F5DEB3;margin-bottom:16px;display:none;animation:fadeUp 0.3s ease;}
 
-/* Misc */
-.pulse { animation: pulse 2s infinite; }
-@keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(0,212,255,0.3);}50%{box-shadow:0 0 0 10px rgba(0,212,255,0);} }
-.shake { animation: shake 0.5s ease; }
-@keyframes shake { 0%,100%{transform:translateX(0);}25%{transform:translateX(-8px);}75%{transform:translateX(8px);} }
-.bounce { animation: bounce 0.4s ease; }
-@keyframes bounce { 0%,100%{transform:scale(1);}50%{transform:scale(1.05);} }
-.floating {
-  animation: floating 3s ease-in-out infinite;
-}
-@keyframes floating {
-  0%,100%{transform:translateY(0);}
-  50%{transform:translateY(-10px);}
-}
+.opts{display:grid;gap:10px;}
+.opt{background:var(--surface2);border:2px solid var(--border);border-radius:12px;padding:14px 18px;text-align:left;cursor:pointer;transition:all 0.25s;font-family:'Poppins',sans-serif;font-size:0.88rem;color:var(--text);display:flex;align-items:center;gap:12px;}
+.opt:hover{border-color:var(--blue);background:rgba(88,166,255,0.06);transform:translateX(4px);}
+.opt:disabled{cursor:default;transform:none;}
+.opt-key{width:30px;height:30px;border-radius:7px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;font-family:'Fira Mono',monospace;font-size:0.75rem;font-weight:700;flex-shrink:0;transition:all 0.25s;}
+.opt:hover .opt-key{background:var(--blue);border-color:var(--blue);color:#000;}
+.opt.correct{border-color:var(--green)!important;background:rgba(0,230,118,0.08)!important;}
+.opt.correct .opt-key{background:var(--green)!important;border-color:var(--green)!important;color:#000!important;}
+.opt.wrong{border-color:var(--red)!important;background:rgba(255,123,114,0.08)!important;}
+.opt.wrong .opt-key{background:var(--red)!important;border-color:var(--red)!important;color:#fff!important;}
+.opt.reveal{border-color:rgba(0,230,118,0.4)!important;background:rgba(0,230,118,0.04)!important;}
 
-/* mobile */
-@media(max-width:600px){
-  .results-stats{grid-template-columns:1fr 1fr;}
-  .topics-grid{grid-template-columns:1fr;}
-  .quiz-top{flex-direction:row;}
-}
+.fb{border-radius:12px;padding:20px;margin-top:16px;display:none;animation:fadeUp 0.35s ease;}
+.fb.ok{background:rgba(0,230,118,0.07);border:1px solid rgba(0,230,118,0.25);}
+.fb.bad{background:rgba(255,123,114,0.07);border:1px solid rgba(255,123,114,0.25);}
+.fb-head{display:flex;align-items:center;gap:8px;font-size:1rem;font-weight:700;margin-bottom:10px;}
+.fb-exp{font-size:0.84rem;color:#C9D1D9;line-height:1.7;}
+.fb-note{background:rgba(0,0,0,0.25);border-radius:7px;padding:8px 13px;margin-top:10px;font-family:'Fira Mono',monospace;font-size:0.8rem;color:var(--yellow);border-left:3px solid var(--yellow);}
+
+.btn-next{background:linear-gradient(135deg,var(--blue),var(--purple));border:none;border-radius:10px;padding:12px 28px;font-size:0.9rem;font-weight:700;font-family:'Poppins',sans-serif;color:#fff;cursor:pointer;transition:all 0.3s;margin-top:14px;display:none;}
+.btn-next:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(88,166,255,0.4);}
+
+/* RESULTS */
+#results{align-items:center;justify-content:center;padding:40px 20px;text-align:center;}
+.res-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:36px;max-width:580px;width:100%;}
+.grade-ring{width:110px;height:110px;border-radius:50%;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;font-size:2.5rem;font-weight:900;font-family:'Fira Mono',monospace;animation:pop 0.5s cubic-bezier(.175,.885,.32,1.275);}
+@keyframes pop{from{opacity:0;transform:scale(0.4);}to{opacity:1;transform:scale(1);}}
+.gA{background:rgba(0,230,118,0.1);border:3px solid var(--green);color:var(--green);}
+.gB{background:rgba(88,166,255,0.1);border:3px solid var(--blue);color:var(--blue);}
+.gC{background:rgba(227,179,65,0.1);border:3px solid var(--yellow);color:var(--yellow);}
+.gD{background:rgba(255,166,87,0.1);border:3px solid var(--orange);color:var(--orange);}
+.gF{background:rgba(255,123,114,0.1);border:3px solid var(--red);color:var(--red);}
+.res-title{font-size:1.5rem;font-weight:800;margin-bottom:5px;}
+.res-sub{color:var(--dim);font-size:0.85rem;margin-bottom:24px;}
+.res-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:24px;}
+.rstat{background:var(--surface2);border-radius:10px;padding:14px;}
+.rstat-v{font-family:'Fira Mono',monospace;font-size:1.4rem;font-weight:700;color:var(--blue);}
+.rstat-l{font-size:0.72rem;color:var(--dim);margin-top:3px;}
+.res-acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.btn-retry{background:transparent;border:2px solid var(--blue);border-radius:10px;padding:11px 24px;font-size:0.88rem;font-weight:700;font-family:'Poppins',sans-serif;color:var(--blue);cursor:pointer;transition:all 0.3s;}
+.btn-retry:hover{background:rgba(88,166,255,0.1);}
+
+/* PROGRESS */
+#progress{padding:28px 20px;max-width:900px;margin:0 auto;width:100%;}
+.prog-bar-wrap{height:10px;background:rgba(255,255,255,0.06);border-radius:5px;margin:10px 0 6px;overflow:hidden;}
+.prog-bar-fill{height:100%;border-radius:5px;transition:width 1s ease;}
+.hist-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.hist-topic{font-weight:700;font-size:0.88rem;}
+.hist-time{font-size:0.75rem;color:var(--dim);margin-top:2px;}
+.hist-score{font-family:'Fira Mono',monospace;font-size:1rem;font-weight:700;}
+.hist-grade{padding:3px 10px;border-radius:5px;font-size:0.75rem;font-weight:800;font-family:'Fira Mono',monospace;}
+.skill-perf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:14px;}
+.spg{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;}
+.spg-name{font-size:0.85rem;font-weight:700;margin-bottom:6px;}
+.spg-info{display:flex;justify-content:space-between;font-size:0.75rem;color:var(--dim);margin-bottom:6px;}
+.spg-bar{height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;}
+.spg-fill{height:100%;border-radius:3px;transition:width 1s;}
+
+.shake{animation:shake 0.4s ease;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-7px);}75%{transform:translateX(7px);}}
 </style>
 </head>
 <body>
 
-<!-- Starfield -->
-<div class="stars" id="stars"></div>
-
-<!-- SCREEN 1: LANDING -->
+<!-- LANDING -->
 <div class="screen active" id="landing">
-  <div class="logo-mark">PhysicsAce⚡</div>
-  <div class="logo-sub">A-Level 9027 • Grade A Training System</div>
-  <div class="landing-card">
-    <h2>Ready to Ace Physics?</h2>
-    <p>100-question banks per topic. Smart feedback. Real exam questions. Built to get you Grade A.</p>
-    <div class="input-wrap">
-      <input type="text" id="nameInput" placeholder="Enter your name to begin..." maxlength="30" autocomplete="off">
-    </div>
-    <button class="btn-primary" onclick="startApp()">🚀 Launch Training</button>
-    <div class="stats-preview">
-      <div class="stat-chip"><span>10</span>Topics</div>
-      <div class="stat-chip"><span>1000+</span>Questions</div>
-      <div class="stat-chip"><span>A*</span>Target</div>
+  <div class="brand">BM Ace 🇲🇾</div>
+  <div class="brand-sub">O Level Bahasa Melayu · Tahun 11 · Ulang Kaji</div>
+  <div class="card">
+    <h2>Selamat Datang!</h2>
+    <p>Sistem latihan komprehensif merangkumi Penulisan, Kefahaman, Rumusan, Tatabahasa dan Peribahasa.</p>
+    <input type="text" id="nameInput" placeholder="Masukkan nama anda..." maxlength="30">
+    <button class="btn-main" onclick="startApp()">🚀 Mulakan Latihan</button>
+    <div class="chips">
+      <div class="chip"><span>5</span>Komponen</div>
+      <div class="chip"><span>30+</span>Subtopik</div>
+      <div class="chip"><span>500+</span>Soalan</div>
     </div>
   </div>
 </div>
 
-<!-- SCREEN 2: TOPIC SELECT -->
-<div class="screen" id="topicselect">
-  <div class="header-bar">
-    <div class="welcome-text">
-      <h1>Welcome, <span id="userName">Student</span>!</h1>
-      <p>Choose your topics and start practising. Target: Grade A or above.</p>
-    </div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <button class="btn-secondary" onclick="showProgress()">📊 My Progress</button>
-    </div>
-  </div>
-
-  <div class="section-label">Quiz Mode</div>
-  <div class="mode-selector">
-    <button class="mode-btn active" data-mode="practice" onclick="setMode(this,'practice')">🧪 Practice Mode</button>
-    <button class="mode-btn" data-mode="exam" onclick="setMode(this,'exam')">📝 Exam Mode</button>
-    <button class="mode-btn" data-mode="mixed" onclick="setMode(this,'mixed')">🎲 Mixed Topics</button>
-  </div>
-
-  <div class="section-label">Select Topics</div>
-  <div class="topics-grid" id="topicsGrid"></div>
-
-  <div class="start-quiz-bar">
-    <button class="btn-start" id="startBtn" onclick="beginQuiz()" disabled>Select a topic to begin →</button>
-  </div>
-</div>
-
-<!-- SCREEN 3: QUIZ -->
-<div class="screen" id="quiz">
-  <div class="quiz-top">
-    <div class="quiz-meta">
-      <div class="quiz-topic-tag" id="quizTopicTag">Mechanics</div>
-      <div class="quiz-progress-text" id="qProgressText">Q 1/15</div>
-    </div>
-    <div class="streak-bar">
-      <div class="streak-badge" id="streakBadge">🔥 0</div>
-      <div class="score-display" id="liveScore">0 pts</div>
-    </div>
-    <div class="timer-ring">
-      <svg width="70" height="70" viewBox="0 0 70 70">
-        <circle class="bg" cx="35" cy="35" r="30"/>
-        <circle class="progress" id="timerCircle" cx="35" cy="35" r="30" stroke-dasharray="188.5" stroke-dashoffset="0"/>
-      </svg>
-      <div class="timer-text" id="timerText">90</div>
-    </div>
-  </div>
-  <div class="quiz-progress-bar">
-    <div class="quiz-progress-fill" id="quizProgressFill" style="width:0%"></div>
-  </div>
-  <div class="question-card" id="questionCard">
-    <div class="q-type-tag" id="qTypeTag">Multiple Choice</div>
-    <div class="question-text" id="questionText"></div>
-    <button class="hint-btn" id="hintBtn" onclick="showHint()">💡 Show Hint</button>
-    <div class="hint-box" id="hintBox"></div>
-    <div class="options-grid" id="optionsGrid"></div>
-    <div class="feedback-card" id="feedbackCard">
-      <div class="fb-header">
-        <span class="icon" id="fbIcon"></span>
-        <span id="fbTitle"></span>
-      </div>
-      <div class="fb-explanation" id="fbExplanation"></div>
-      <div class="fb-formula" id="fbFormula" style="display:none"></div>
-    </div>
-    <button class="btn-next" id="nextBtn" onclick="nextQuestion()">Next Question →</button>
-  </div>
-</div>
-
-<!-- SCREEN 4: RESULTS -->
-<div class="screen" id="results">
-  <div class="confetti-container" id="confettiContainer"></div>
-  <div class="results-card">
-    <div class="grade-circle" id="gradeCircle">A</div>
-    <div class="motivational" id="motivational">Outstanding!</div>
-    <div class="results-sub" id="resultsSub">You're on track for Grade A</div>
-    <div class="results-stats">
-      <div class="res-stat">
-        <div class="res-stat-val" id="resScore">0/15</div>
-        <div class="res-stat-lbl">Score</div>
-      </div>
-      <div class="res-stat">
-        <div class="res-stat-val" id="resPercent">0%</div>
-        <div class="res-stat-lbl">Accuracy</div>
-      </div>
-      <div class="res-stat">
-        <div class="res-stat-val" id="resTime">0s</div>
-        <div class="res-stat-lbl">Avg Time</div>
-      </div>
-    </div>
-    <div class="results-actions">
-      <button class="btn-retry" onclick="retryQuiz()">🔁 Retry Topic</button>
-      <button class="btn-start" onclick="showTopicSelect()">📚 New Topic</button>
-      <button class="btn-secondary" onclick="showProgress()">📊 Progress</button>
-    </div>
-  </div>
-</div>
-
-<!-- SCREEN 5: PROGRESS -->
-<div class="screen" id="progress-screen">
-  <div class="progress-header">
+<!-- SKILL SELECT -->
+<div class="screen" id="skillselect">
+  <div class="top-bar">
     <div>
-      <div class="prog-title">📊 Your Progress</div>
-      <div class="prog-sub" id="progressPlayerName">Loading...</div>
+      <div class="page-title">Halo, <span id="uname">Pelajar</span>!</div>
+      <div class="page-sub">Pilih kemahiran yang hendak dilatih hari ini.</div>
     </div>
-    <button class="btn-secondary" onclick="showTopicSelect()">← Back</button>
-  </div>
-
-  <div class="prog-section">
-    <div class="section-label">Overall Mastery</div>
-    <div class="overall-progress-bar">
-      <div class="overall-fill" id="overallFill" style="width:0%"></div>
-    </div>
-    <div class="overall-text">
-      <span id="overallText">0% complete</span>
-      <span id="overallQuestions">0 questions answered</span>
+    <div style="display:flex;gap:8px;">
+      <button class="btn-ghost" onclick="showProgress()">📊 Prestasi Saya</button>
     </div>
   </div>
 
-  <div class="prog-section">
-    <div class="section-label">Topic Performance</div>
-    <div class="topic-perf-grid" id="topicPerfGrid"></div>
+  <div class="sec-label">Pilih Kemahiran</div>
+  <div class="skills-grid" id="skillsGrid"></div>
+
+  <div class="subtopic-panel" id="stPanel">
+    <div class="st-title">📌 Pilih Sub-Topik (pilihan — kosongkan untuk semua)</div>
+    <div class="st-grid" id="stGrid"></div>
   </div>
 
-  <div class="prog-section">
-    <div class="section-label">Recent Sessions</div>
-    <div id="historyList"><p style="color:var(--text-dim);font-size:0.9rem;">No sessions yet. Start practising!</p></div>
+  <div class="start-bar">
+    <button class="btn-start" id="startBtn" onclick="beginQuiz()" disabled>Pilih kemahiran untuk bermula →</button>
   </div>
+</div>
 
+<!-- QUIZ -->
+<div class="screen" id="quiz">
+  <div class="q-topbar">
+    <div class="q-meta">
+      <div class="q-tag" id="qTag">Tatabahasa</div>
+      <div class="q-num" id="qNum">S 1/15</div>
+    </div>
+    <div class="streak-box">
+      <div class="streak" id="streakEl">🔥 0</div>
+      <div class="pts" id="ptsEl">0 mata</div>
+    </div>
+    <div class="timer" id="timerEl">⏱ 60</div>
+  </div>
+  <div class="q-pbar"><div class="q-pfill" id="qPfill" style="width:0%"></div></div>
+  <div class="q-card" id="qCard">
+    <div class="q-type" id="qTypeEl">Aneka Pilihan</div>
+    <div class="q-context" id="qCtx" style="display:none"></div>
+    <div class="q-text" id="qText"></div>
+    <button class="hint-btn" id="hintBtn" onclick="showHint()">💡 Tunjukkan Petunjuk</button>
+    <div class="hint-box" id="hintBox"></div>
+    <div class="opts" id="optsEl"></div>
+    <div class="fb" id="fbEl">
+      <div class="fb-head"><span id="fbIcon"></span><span id="fbTitle"></span></div>
+      <div class="fb-exp" id="fbExp"></div>
+      <div class="fb-note" id="fbNote" style="display:none"></div>
+    </div>
+    <button class="btn-next" id="nextBtn" onclick="nextQ()">Soalan Seterusnya →</button>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div class="screen" id="results">
+  <div class="res-card">
+    <div class="grade-ring" id="gradeRing">A</div>
+    <div class="res-title" id="resTitle">Cemerlang!</div>
+    <div class="res-sub" id="resSub">Teruskan semangat!</div>
+    <div class="res-stats">
+      <div class="rstat"><div class="rstat-v" id="rsScore">0/15</div><div class="rstat-l">Markah</div></div>
+      <div class="rstat"><div class="rstat-v" id="rsPct">0%</div><div class="rstat-l">Tepat</div></div>
+      <div class="rstat"><div class="rstat-v" id="rsTime">0s</div><div class="rstat-l">Min. Masa</div></div>
+    </div>
+    <div class="res-acts">
+      <button class="btn-retry" onclick="retryQuiz()">🔁 Cuba Semula</button>
+      <button class="btn-start" onclick="backToSelect()">📚 Kemahiran Lain</button>
+      <button class="btn-ghost" onclick="showProgress()">📊 Prestasi</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="screen" id="progress">
+  <div class="top-bar">
+    <div>
+      <div class="page-title">📊 Prestasi Saya</div>
+      <div class="page-sub" id="progName"></div>
+    </div>
+    <button class="btn-ghost" onclick="backToSelect()">← Kembali</button>
+  </div>
+  <div class="sec-label">Keseluruhan</div>
+  <div class="prog-bar-wrap"><div class="prog-bar-fill" id="overallBar" style="width:0%;background:linear-gradient(90deg,var(--blue),var(--purple))"></div></div>
+  <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:var(--dim);margin-bottom:24px;">
+    <span id="ovText">0% tepat</span><span id="ovQ">0 soalan dijawab</span>
+  </div>
+  <div class="sec-label">Mengikut Kemahiran</div>
+  <div class="skill-perf-grid" id="skillPerfGrid"></div>
+  <div class="sec-label" style="margin-top:24px;">Sesi Terkini</div>
+  <div id="histList"><p style="color:var(--dim);font-size:0.85rem;">Tiada sesi lagi.</p></div>
   <div style="text-align:center;margin-top:20px;">
-    <button class="btn-secondary" onclick="clearProgress()" style="color:var(--danger);border-color:var(--danger);">🗑 Clear All Progress</button>
+    <button class="btn-ghost" onclick="clearProg()" style="color:var(--red);border-color:var(--red);">🗑 Padam Semua Data</button>
   </div>
 </div>
 
 <script>
-// ===================== AUDIO ENGINE =====================
-const AudioCtx = window.AudioContext || window.webkitAudioContext;
-let ctx;
-function getCtx() {
-  if (!ctx) ctx = new AudioCtx();
-  if (ctx.state === 'suspended') ctx.resume();
-  return ctx;
-}
-function playTone(freq, type='sine', dur=0.2, vol=0.3, delay=0) {
-  try {
-    const c = getCtx();
-    const osc = c.createOscillator();
-    const gain = c.createGain();
-    osc.connect(gain); gain.connect(c.destination);
-    osc.type = type;
-    osc.frequency.setValueAtTime(freq, c.currentTime + delay);
-    gain.gain.setValueAtTime(0, c.currentTime + delay);
-    gain.gain.linearRampToValueAtTime(vol, c.currentTime + delay + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + delay + dur);
-    osc.start(c.currentTime + delay);
-    osc.stop(c.currentTime + delay + dur + 0.1);
-  } catch(e){}
-}
-function sfxCorrect() {
-  playTone(523, 'sine', 0.15, 0.3);
-  playTone(659, 'sine', 0.15, 0.3, 0.12);
-  playTone(784, 'sine', 0.2, 0.3, 0.24);
-}
-function sfxWrong() {
-  playTone(200, 'sawtooth', 0.3, 0.3);
-  playTone(150, 'sawtooth', 0.2, 0.2, 0.15);
-}
-function sfxClick() { playTone(800, 'sine', 0.05, 0.15); }
-function sfxNext() { playTone(440, 'triangle', 0.1, 0.2); }
-function sfxTimerWarn() { playTone(880, 'square', 0.05, 0.15); }
-function sfxComplete() {
-  [523,659,784,1047].forEach((f,i)=>playTone(f,'sine',0.3,0.3,i*0.15));
-}
-function sfxStart() {
-  playTone(660,'sine',0.1,0.2);
-  playTone(880,'sine',0.15,0.2,0.1);
-}
+// ===================== AUDIO =====================
+let actx;
+function ac(){if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume();return actx;}
+function tone(f,t='sine',d=0.18,v=0.28,dl=0){try{const c=ac(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type=t;o.frequency.setValueAtTime(f,c.currentTime+dl);g.gain.setValueAtTime(0,c.currentTime+dl);g.gain.linearRampToValueAtTime(v,c.currentTime+dl+0.02);g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+dl+d);o.start(c.currentTime+dl);o.stop(c.currentTime+dl+d+0.05);}catch(e){}}
+function sfxOk(){tone(523,'sine',0.12,0.25);tone(659,'sine',0.12,0.25,0.1);tone(784,'sine',0.18,0.25,0.2);}
+function sfxWrong(){tone(200,'sawtooth',0.25,0.28);tone(150,'sawtooth',0.18,0.2,0.12);}
+function sfxClick(){tone(700,'sine',0.05,0.15);}
+function sfxNext(){tone(440,'triangle',0.08,0.2);}
+function sfxDone(){[523,659,784,1047].forEach((f,i)=>tone(f,'sine',0.25,0.28,i*0.12));}
 
-// ===================== STARS =====================
-function initStars() {
-  const el = document.getElementById('stars');
-  for(let i=0;i<80;i++){
-    const s = document.createElement('div');
-    s.className='star';
-    const size = Math.random()*2.5+0.5;
-    s.style.cssText=`width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*4}s;--delay:${Math.random()*5}s;`;
-    el.appendChild(s);
-  }
-}
-initStars();
-
-// ===================== TOPICS =====================
-const TOPICS = [
-  { id:'mechanics', name:'Mechanics', icon:'⚙️', color:'#00D4FF', subs:'Kinematics · Newton\'s Laws · Momentum · Energy' },
-  { id:'waves', name:'Waves & Oscillations', icon:'〰️', color:'#7B2FFF', subs:'Wave Properties · SHM · Superposition · Doppler' },
-  { id:'electricity', name:'Electricity', icon:'⚡', color:'#FFD700', subs:'Circuits · Ohm\'s Law · Capacitors · EMF' },
-  { id:'fields', name:'Fields', icon:'🧲', color:'#FF6B35', subs:'Gravitational · Electric · Magnetic · Induction' },
-  { id:'thermal', name:'Thermal Physics', icon:'🌡️', color:'#FF3B6B', subs:'Ideal Gas · Kinetic Theory · Thermodynamics' },
-  { id:'quantum', name:'Quantum & Nuclear', icon:'⚛️', color:'#00FF9F', subs:'Photoelectric · De Broglie · Radioactivity · Fission' },
-  { id:'optics', name:'Optics', icon:'🔬', color:'#A78BFA', subs:'Refraction · Lenses · Interference · Diffraction' },
-  { id:'circular', name:'Circular Motion', icon:'🌀', color:'#06B6D4', subs:'Centripetal · Gravitation · Orbital · Satellites' },
-  { id:'practical', name:'Practical Skills', icon:'🧪', color:'#84CC16', subs:'Uncertainty · Graphs · Methods · Analysis' },
-  { id:'modern', name:'Modern Physics', icon:'🌌', color:'#F472B6', subs:'Relativity · Particle Physics · Standard Model' }
+// ===================== SKILLS & QB =====================
+const SKILLS = [
+  {id:'penulisan',  name:'Penulisan',      icon:'✍️', color:'var(--blue)',   sub:'Format · Idea · Wacana · Imbuhan dalam karangan',
+   subtopics:['Karangan Berformat','Karangan Tidak Berformat','Format Surat Rasmi','Format Laporan','Format Berita','Penanda Wacana','Variasi Ayat','Peribahasa dalam Karangan']},
+  {id:'kefahaman',  name:'Kefahaman',      icon:'📖', color:'var(--purple)', sub:'Fakta · Inferens · Nilai Murni · KBAT',
+   subtopics:['Soalan Fakta Langsung','Soalan Inferens','Maksud Perkataan','Nilai Murni & Pengajaran','Soalan KBAT','Gaya Bahasa']},
+  {id:'rumusan',    name:'Rumusan',        icon:'📝', color:'var(--teal)',   sub:'Isi tersurat · Bahasa sendiri · Had perkataan',
+   subtopics:['Mengenal Pasti Isi Tersurat','Elak Huraian Lebihan','Penggunaan Bahasa Sendiri','Had Perkataan','Ayat Gramatis dalam Rumusan']},
+  {id:'tatabahasa', name:'Tatabahasa',     icon:'🔤', color:'var(--orange)', sub:'Imbuhan · Kata Ganda · Ayat Aktif/Pasif · dan lagi',
+   subtopics:['Imbuhan Awalan','Imbuhan Akhiran','Imbuhan Apitan','Imbuhan Sisipan','Kata Ganda','Kata Majmuk','Penjodoh Bilangan','Kata Hubung','Kata Sendi Nama','Kata Pemeri','Kata Penguat','Kata Nafi','Ayat Aktif & Pasif','Cakap Ajuk & Cakap Pindah','Kesalahan Bahasa','Tanda Baca']},
+  {id:'peribahasa', name:'Peribahasa',     icon:'🌿', color:'var(--green)',  sub:'Simpulan Bahasa · Pepatah · Perumpamaan · Bidalan',
+   subtopics:['Simpulan Bahasa','Pepatah','Perumpamaan','Bidalan','Maksud Peribahasa','Penggunaan dalam Ayat']},
 ];
 
-// ===================== QUESTION BANK =====================
-// 100+ questions per topic - showing representative sample with full variety
 const QB = {
-mechanics: [
-  {q:"A car accelerates uniformly from rest to 20 m/s in 5 s. What is the distance travelled?",opts:["50 m","100 m","25 m","200 m"],ans:0,hint:"Use s = ½(u+v)t",exp:"Using s = ½(u+v)t = ½(0+20)×5 = 50 m. Alternatively, a = 20/5 = 4 m/s², then s = ut + ½at² = 0 + ½(4)(25) = 50 m.",formula:"s = ut + ½at²",type:"Kinematics"},
-  {q:"Which of Newton's laws explains why you feel pushed back in your seat when a car accelerates?",opts:["1st Law","2nd Law","3rd Law","Law of Conservation"],ans:1,hint:"Think about net force and acceleration",exp:"Newton's 2nd Law: F = ma. The net forward force on the car produces acceleration. By the 2nd law, a resultant force is needed for acceleration, so the seat exerts a force on you.",formula:"F = ma",type:"Newton's Laws"},
-  {q:"A 2 kg ball moving at 6 m/s collides with a stationary 4 kg ball and they stick together. What is their final velocity?",opts:["2 m/s","3 m/s","4 m/s","6 m/s"],ans:0,hint:"Conservation of momentum: total momentum is conserved",exp:"p_before = 2×6 = 12 kg m/s. p_after = (2+4)×v = 6v. So v = 12/6 = 2 m/s. This is a perfectly inelastic collision.",formula:"m₁u₁ = (m₁+m₂)v",type:"Momentum"},
-  {q:"A 500 g mass is dropped from 20 m height. What is its kinetic energy just before impact? (g = 10 m/s²)",opts:["100 J","10 J","50 J","200 J"],ans:0,hint:"Energy conserved: GPE converts to KE",exp:"GPE = mgh = 0.5 × 10 × 20 = 100 J. All GPE converts to KE (assuming no air resistance).",formula:"GPE = mgh, KE = ½mv²",type:"Energy"},
-  {q:"A 10 N force acts on a 2 kg object for 3 s. What impulse is delivered?",opts:["30 N·s","5 N·s","60 N·s","15 N·s"],ans:0,hint:"Impulse = Force × time",exp:"Impulse = Ft = 10 × 3 = 30 N·s. Impulse equals the change in momentum: Δp = mΔv = 2 × (30/2) = 30 kg·m/s.",formula:"J = Ft = Δp",type:"Momentum"},
-  {q:"A projectile is launched at 30° to the horizontal at 40 m/s. What is the maximum height reached? (g=10)",opts:["20 m","40 m","80 m","10 m"],ans:0,hint:"Vertical component: v_y = v sin θ, use v²=u²-2gs at top",exp:"v_y = 40 sin30° = 20 m/s. At max height, v_y = 0. Using v²=u²-2as: 0 = 400 - 20h, h = 20 m.",formula:"v_y = v sinθ, h = v_y²/2g",type:"Kinematics"},
-  {q:"The work done by a constant force of 8 N moving an object 5 m at 60° to the force direction is:",opts:["20 J","40 J","34.6 J","80 J"],ans:0,hint:"W = Fd cosθ",exp:"W = Fd cosθ = 8 × 5 × cos60° = 40 × 0.5 = 20 J. Only the component of force along displacement does work.",formula:"W = Fd cosθ",type:"Energy"},
-  {q:"A 1500 kg car moving at 20 m/s brakes to a stop in 4 s. What is the average braking force?",opts:["7500 N","30000 N","6000 N","3750 N"],ans:0,hint:"F = ma, find a first using v = u + at",exp:"a = (0-20)/4 = -5 m/s². F = ma = 1500 × 5 = 7500 N (magnitude).",formula:"F = ma, a = Δv/t",type:"Newton's Laws"},
-  {q:"Power is defined as:",opts:["Work done per unit time","Force times velocity","Both A and B are correct","Energy stored"],ans:2,hint:"Power has two equivalent formulas",exp:"Power P = W/t (work per unit time) and also P = Fv (force × velocity). Both are correct and equivalent, derived from W = Fs and P = Fs/t = F(s/t) = Fv.",formula:"P = W/t = Fv",type:"Energy"},
-  {q:"Which statement about an object in uniform circular motion is correct?",opts:["Speed is constant, velocity is constant","Speed is constant, velocity changes","Speed and velocity both change","Speed and velocity are both constant"],ans:1,hint:"Velocity is a vector - think about direction",exp:"In uniform circular motion, speed (magnitude) is constant but velocity (vector) changes direction continuously. The centripetal acceleration is always directed toward the centre.",formula:"a = v²/r",type:"Kinematics"},
-  {q:"A ball is thrown vertically upward at 15 m/s. How long does it take to return to the starting point? (g=10)",opts:["3 s","1.5 s","5 s","2 s"],ans:0,hint:"Time up = time down by symmetry",exp:"Time to reach peak: t = v/g = 15/10 = 1.5 s. Total time = 2 × 1.5 = 3 s by symmetry (same height, opposite velocity).",formula:"t = u/g (upward), total = 2u/g",type:"Kinematics"},
-  {q:"Elastic potential energy stored in a spring with stiffness k = 200 N/m compressed by 0.1 m is:",opts:["1 J","2 J","20 J","0.1 J"],ans:0,hint:"E = ½kx²",exp:"E = ½kx² = ½ × 200 × 0.01 = 1 J. Note: x must be in metres and k in N/m.",formula:"E = ½kx²",type:"Energy"},
-  {q:"A 3 kg object travels at 4 m/s east, then at 3 m/s north. What is the magnitude of the change in momentum?",opts:["15 kg·m/s","21 kg·m/s","25 kg·m/s","9 kg·m/s"],ans:0,hint:"Δp is a vector - use Pythagoras",exp:"Δp = m × Δv. Δv = √(4²+3²) = 5 m/s (right-angle triangle). Δp = 3 × 5 = 15 kg·m/s.",formula:"Δp = mΔv, |Δv| = √(vx²+vy²)",type:"Momentum"},
-  {q:"Which graph correctly represents the motion of a ball thrown upward (taking upward as positive)?",opts:["v-t graph with negative gradient","v-t graph with positive gradient","s-t graph with constant slope","a-t graph showing varying acceleration"],ans:0,hint:"Gravity acts downward throughout",exp:"The ball has constant deceleration g = -10 m/s² throughout (both going up and coming down). So v-t graph has constant negative gradient. The a-t graph is a horizontal line at -g.",formula:"a = -g = -10 m/s²",type:"Kinematics"},
-  {q:"Conservation of momentum applies when:",opts:["No external forces act on the system","Only elastic collisions occur","Kinetic energy is conserved","Objects have the same mass"],ans:0,hint:"Think about Newton's second law applied to the whole system",exp:"Momentum is conserved when the resultant external force on the system is zero (Newton's 2nd: F_ext = dp/dt = 0 → p = constant). This applies regardless of collision type.",formula:"Σp = constant if ΣF_ext = 0",type:"Momentum"},
-  {q:"The efficiency of a machine that lifts a 500 N load through 3 m using 2000 J of input energy is:",opts:["75%","25%","60%","150%"],ans:0,hint:"Efficiency = useful output energy / input energy",exp:"Useful output energy = Fd = 500 × 3 = 1500 J. Efficiency = 1500/2000 = 0.75 = 75%.",formula:"η = W_useful/W_input × 100%",type:"Energy"},
-  {q:"A force of 20 N acts on a 4 kg object at rest. What is the acceleration?",opts:["5 m/s²","80 m/s²","0.2 m/s²","16 m/s²"],ans:0,hint:"F = ma, rearrange for a",exp:"a = F/m = 20/4 = 5 m/s². This is Newton's 2nd law. Always check units: N/kg = kg·m/s²/kg = m/s².",formula:"a = F/m",type:"Newton's Laws"},
-  {q:"Two forces of 6 N and 8 N act at right angles on an object. The resultant force is:",opts:["10 N","14 N","2 N","48 N"],ans:0,hint:"Pythagoras theorem for perpendicular vectors",exp:"R = √(6² + 8²) = √(36+64) = √100 = 10 N. This is a 3-4-5 right triangle scaled by 2.",formula:"R = √(F₁² + F₂²)",type:"Newton's Laws"},
-  {q:"An object is in equilibrium. This means:",opts:["The resultant force is zero","The object is stationary","Only balanced forces exist","Velocity equals zero"],ans:0,hint:"Equilibrium relates to forces, not necessarily motion",exp:"Equilibrium means zero resultant force (and zero resultant torque for rotational equilibrium). An object can move at constant velocity and still be in translational equilibrium (Newton's 1st law).",formula:"ΣF = 0, Στ = 0",type:"Newton's Laws"},
-  {q:"A stone is dropped from a cliff and hits the water 3 s later. How high is the cliff? (g=10)",opts:["45 m","30 m","90 m","15 m"],ans:0,hint:"s = ut + ½at², with u=0",exp:"s = ut + ½at² = 0 + ½(10)(9) = 45 m. The stone falls 45 m in 3 seconds.",formula:"s = ½gt²",type:"Kinematics"},
-  {q:"The velocity-time graph of a moving body shows a straight line through the origin. This represents:",opts:["Uniform acceleration from rest","Constant velocity","Decelerating motion","Non-uniform acceleration"],ans:0,hint:"Gradient of v-t = acceleration",exp:"A straight line v-t graph through the origin means velocity increases linearly from zero: uniform acceleration from rest. The gradient = acceleration.",formula:"a = Δv/Δt = constant",type:"Kinematics"},
-  {q:"What is the momentum of a 70 kg person running at 8 m/s?",opts:["560 kg·m/s","8.75 kg·m/s","78 kg·m/s","640 kg·m/s"],ans:0,hint:"p = mv",exp:"p = mv = 70 × 8 = 560 kg·m/s. Momentum is a vector quantity in the direction of motion.",formula:"p = mv",type:"Momentum"},
-  {q:"A 60 W motor lifts a 30 kg mass. What is the maximum speed it can maintain? (g=10)",opts:["0.2 m/s","20 m/s","2 m/s","18 m/s"],ans:0,hint:"P = Fv, F = weight",exp:"Weight = 30 × 10 = 300 N. P = Fv → v = P/F = 60/300 = 0.2 m/s.",formula:"P = Fv → v = P/F",type:"Energy"},
-  {q:"During a perfectly elastic collision, which quantities are conserved?",opts:["Both momentum and kinetic energy","Only momentum","Only kinetic energy","Total energy only"],ans:0,hint:"'Elastic' has a specific physics meaning",exp:"In a perfectly elastic collision, both momentum AND kinetic energy are conserved. In an inelastic collision, only momentum is conserved (KE is converted to heat, sound etc).",formula:"KE₁+KE₂ = KE₁'+KE₂' (elastic)",type:"Momentum"},
-  {q:"A 5 kg block slides down a frictionless incline of 30°. What is its acceleration?",opts:["5 m/s²","8.66 m/s²","10 m/s²","4.33 m/s²"],ans:0,hint:"Component of gravity along slope = g sinθ",exp:"Net force along slope = mg sin30° = 5×10×0.5 = 25 N. a = F/m = 25/5 = 5 m/s². This equals g sin30° = 10 × 0.5 = 5 m/s².",formula:"a = g sinθ",type:"Newton's Laws"},
-  {q:"The area under a force-time graph represents:",opts:["Impulse","Work","Power","Velocity change"],ans:0,hint:"Impulse = ∫F dt",exp:"Area under F-t graph = ∫F dt = impulse = change in momentum Δp. This is useful for variable forces.",formula:"Impulse = ∫F dt = Δp",type:"Momentum"},
-  {q:"Two objects of 3 kg and 5 kg move toward each other at 4 m/s and 2 m/s respectively. What is the total momentum (taking right as positive)?",opts:["2 kg·m/s","22 kg·m/s","-2 kg·m/s","32 kg·m/s"],ans:0,hint:"Momentum is a vector - consider signs",exp:"If 3 kg moves right (+): p₁ = 3×4 = +12. If 5 kg moves left (-): p₂ = 5×(-2) = -10. Total = 12-10 = +2 kg·m/s (to the right).",formula:"p_total = p₁ + p₂",type:"Momentum"},
-  {q:"A car engine provides 30 kW of power at 120 km/h. What is the driving force?",opts:["900 N","250 N","3600 N","3000 N"],ans:0,hint:"Convert speed to m/s, then use P = Fv",exp:"v = 120 km/h = 120/3.6 = 33.33 m/s. F = P/v = 30000/33.33 = 900 N.",formula:"F = P/v",type:"Energy"},
-  {q:"What is the gravitational potential energy of a 2 kg mass at 50 m height? (g=9.81)",opts:["981 J","500 J","100 J","490.5 J"],ans:0,hint:"GPE = mgh",exp:"GPE = mgh = 2 × 9.81 × 50 = 981 J. Always use g = 9.81 m/s² unless told otherwise in A-level.",formula:"GPE = mgh",type:"Energy"},
-  {q:"A 1000 kg car decelerates from 30 m/s to 10 m/s. What is the loss in kinetic energy?",opts:["400 kJ","50 kJ","200 kJ","500 kJ"],ans:0,hint:"ΔKE = ½m(v₂²-v₁²)",exp:"KE₁ = ½×1000×900 = 450,000 J. KE₂ = ½×1000×100 = 50,000 J. Loss = 450,000-50,000 = 400,000 J = 400 kJ.",formula:"ΔKE = ½m(v₁²-v₂²)",type:"Energy"},
-  {q:"Hooke's Law states that, within the elastic limit:",opts:["Force is proportional to extension","Stress equals strain","Elastic PE = ½kx","Extension equals compression"],ans:0,hint:"F = ke within the elastic limit",exp:"Hooke's Law: F = kx, where k is the spring constant (N/m) and x is extension. This is only valid within the elastic (proportional) limit.",formula:"F = kx",type:"Newton's Laws"}
+
+// ================================================================
+// TATABAHASA
+// ================================================================
+tatabahasa:[
+  // IMBUHAN AWALAN
+  {sk:'Imbuhan Awalan', type:'Aneka Pilihan',
+   q:'Pilih kata yang menggunakan imbuhan awalan <b>me-</b> yang betul.',
+   opts:['Memasak','Menjual','Membuat','Semua betul'],ans:3,
+   hint:'me- boleh berubah bentuk kepada mem-, men-, meng-, meny-',
+   exp:'Semua pilihan adalah betul. Imbuhan awalan me- berubah bentuk bergantung pada huruf pertama kata dasar: mem- (b, p), men- (d, t), meng- (g, k, a-u), meny- (s), me- (l, m, n, r, w, y).',
+   note:'Peraturan: me + buat = membuat, me + jual = menjual, me + masak = memasak'},
+
+  {sk:'Imbuhan Awalan', type:'Aneka Pilihan',
+   q:'Antara berikut, kata yang menggunakan awalan <b>ber-</b> dengan betul ialah:',
+   opts:['Bercakap','Berkata','Berlari','Semua betul'],ans:3,
+   hint:'ber- digunakan untuk membentuk kata kerja tak transitif',
+   exp:'Ber- boleh membawa makna: (1) mempunyai (beranak), (2) melakukan perbuatan (bercakap), (3) menggunakan sesuatu (berkereta), (4) dalam keadaan (berpakaian).',
+   note:'ber- → be- apabila diikuti kata yang bermula dengan r (berenang, bukan berrenang)'},
+
+  {sk:'Imbuhan Awalan', type:'Aneka Pilihan',
+   q:'Pilih imbuhan awalan yang tepat untuk kata dasar <i>"ajar"</i> dalam ayat: "Ibu _____ saya membaca."',
+   opts:['mengajar','melajar','memajar','menajar'],ans:0,
+   hint:'Huruf pertama "ajar" ialah vokal. Awalan me + vokal = meng-',
+   exp:'me- + ajar = mengajar (kata dasar bermula huruf vokal → guna meng-). Contoh lain: meng + ikut = mengikut, meng + ambil = mengambil.',
+   note:'me + a/e/i/o/u = meng-'},
+
+  {sk:'Imbuhan Awalan', type:'Aneka Pilihan',
+   q:'Kata <b>"pelajar"</b> menggunakan imbuhan awalan:',
+   opts:['pe-','per-','meN-','ber-'],ans:0,
+   hint:'Lihat bentuk kata tersebut — ia kata nama, bukan kata kerja',
+   exp:'pe- + lajar → pelajar. Imbuhan pe- membentuk kata nama yang bermaksud "orang yang melakukan" atau "sesuatu yang berkaitan". Contoh: penulis, pembaca, pelakon.',
+   note:'pe- (orang/benda pelaku), pe-an (tempat/perkara)'},
+
+  // IMBUHAN AKHIRAN
+  {sk:'Imbuhan Akhiran', type:'Aneka Pilihan',
+   q:'Imbuhan akhiran <b>-kan</b> berfungsi untuk:',
+   opts:['Menjadikan kata kerja transitif','Menjadikan kata nama','Menyatakan perbuatan spontan','Semua di atas'],ans:0,
+   hint:'Fikirkan "baca" vs "bacakan" — apakah bezanya?',
+   exp:'-kan membentuk kata kerja transitif. "Bacakan buku itu kepadanya" — ada objek yang menerima perbuatan. Berbeza dengan -i yang bermaksud melakukan perbuatan pada sesuatu.',
+   note:'-kan → memerlukan objek; -i → diikuti tempat/sasaran'},
+
+  {sk:'Imbuhan Akhiran', type:'Aneka Pilihan',
+   q:'Pilih ayat yang menggunakan akhiran <b>-i</b> dengan betul.',
+   opts:['Dia menghuni rumah pusaka itu.','Dia menghuniakan rumah pusaka itu.','Dia dihunikan rumah pusaka itu.','Tiada jawapan betul'],ans:0,
+   hint:'-i digunakan apabila subjek melakukan perbuatan di/pada tempat atau sasaran',
+   exp:'"Menghuni" (me- + huni + -i) bermaksud tinggal di sesuatu tempat. Kata akhiran -i biasanya digunakan untuk menunjukkan perbuatan yang berlaku di/pada sesuatu. Contoh: menduduki, memasuki.',
+   note:'-i: berlaku di tempat/pada sasaran; -kan: menyebabkan sesuatu berlaku'},
+
+  // IMBUHAN APITAN
+  {sk:'Imbuhan Apitan', type:'Aneka Pilihan',
+   q:'Kata <b>"keberanian"</b> menggunakan apitan:',
+   opts:['ke-...-an','ber-...-an','peN-...-an','me-...-kan'],ans:0,
+   hint:'Apitan = imbuhan yang diletakkan pada kedua-dua hujung kata dasar',
+   exp:'keberanian = ke- + berani + -an. Apitan ke-...-an membentuk kata nama abstrak yang bermaksud sifat atau keadaan. Contoh: kebebasan, keindahan, kemajuan.',
+   note:'ke-...-an = sifat/keadaan (abstrak)'},
+
+  {sk:'Imbuhan Apitan', type:'Aneka Pilihan',
+   q:'Apitan <b>peN-...-an</b> dalam kata "pembelajaran" bermaksud:',
+   opts:['Proses/hasil belajar','Orang yang belajar','Tempat belajar','Cara belajar'],ans:0,
+   hint:'peN-...-an biasanya membentuk kata nama yang merujuk proses atau hasil',
+   exp:'pembelajaran = pe- + belajar + -an → proses/hasil belajar. peN-...-an sering bermaksud proses, perbuatan atau hasil. Contoh: pengajaran (proses mengajar), penilaian (proses menilai).',
+   note:'peN-...-an = proses/hasil tindakan'},
+
+  // KATA GANDA
+  {sk:'Kata Ganda', type:'Aneka Pilihan',
+   q:'Kata ganda <b>"berlari-lari"</b> merupakan jenis kata ganda:',
+   opts:['Kata ganda berentak','Kata ganda penuh','Kata ganda separa','Kata ganda berimbuhan'],ans:3,
+   hint:'Ia melibatkan pengulangan + imbuhan',
+   exp:'"Berlari-lari" ialah kata ganda berimbuhan — kata dasar "lari" digandakan dengan imbuhan ber- pada gandaan pertama. Ini berbeza daripada kata ganda penuh (buku-buku), separa (lelaki) dan berentak (compang-camping).',
+   note:'Jenis KG: penuh, separa, berentak, berimbuhan'},
+
+  {sk:'Kata Ganda', type:'Aneka Pilihan',
+   q:'Manakah contoh kata ganda berentak yang betul?',
+   opts:['Compang-camping','Buku-buku','Lelaki','Memukul-mukul'],ans:0,
+   hint:'Kata ganda berentak mempunyai bunyi yang berirama/bersajak',
+   exp:'"Compang-camping" ialah kata ganda berentak — kedua-dua unsur tidak boleh berdiri sendiri dan mempunyai bunyi yang berulang. Contoh lain: sayur-mayur, lauk-pauk, tunggang-langgang.',
+   note:'Berentak: bunyi berirama, unsur tidak bermakna bersendirian'},
+
+  {sk:'Kata Ganda', type:'Aneka Pilihan',
+   q:'Dalam ayat "Budak-budak itu bermain di padang", kata ganda "budak-budak" bermaksud:',
+   opts:['Ramai/jamak','Saiz kecil','Bermain-main','Kurang pasti'],ans:0,
+   hint:'Kata ganda penuh + kata nama = jamak',
+   exp:'Kata ganda penuh pada kata nama menunjukkan jamak (banyak). "Budak-budak" = ramai budak. Berbeza dengan kata ganda penuh pada kata kerja yang menunjukkan berulang/terus-menerus.',
+   note:'Kata nama digandakan = jamak; kata kerja digandakan = berulang'},
+
+  // KATA MAJMUK
+  {sk:'Kata Majmuk', type:'Aneka Pilihan',
+   q:'Antara berikut, manakah kata majmuk yang betul penulisannya?',
+   opts:['Tandatangan','Matahari','Setiausaha','Semua betul'],ans:3,
+   hint:'Kata majmuk ditulis terpisah KECUALI yang sudah mantap',
+   exp:'Kata majmuk yang sudah mantap ditulis serangkai (bercantum): tandatangan, matahari, setiausaha, warganegara. Kata majmuk biasa ditulis berasingan: alat tulis, buku teks.',
+   note:'Mantap = serangkai; belum mantap = berasingan'},
+
+  {sk:'Kata Majmuk', type:'Aneka Pilihan',
+   q:'Penulisan yang betul untuk kata majmuk ialah:',
+   opts:['Kapal terbang','Kapalterbang','Kapal-terbang','Semua betul'],ans:0,
+   hint:'Ini kata majmuk yang belum mantap — ditulis berasingan',
+   exp:'"Kapal terbang" ditulis berasingan kerana belum mantap. Hanya kata majmuk yang sudah menjadi sebati dan mantap ditulis serangkai. Gunakan panduan DBP sebagai rujukan.',
+   note:'Kapal terbang (berasingan) ≠ setiausaha (serangkai)'},
+
+  // PENJODOH BILANGAN
+  {sk:'Penjodoh Bilangan', type:'Aneka Pilihan',
+   q:'Penjodoh bilangan yang tepat untuk "kertas" ialah:',
+   opts:['Helai','Biji','Ekor','Buah'],ans:0,
+   hint:'Penjodoh bilangan bagi benda tipis dan lembaran',
+   exp:'"Helai" digunakan untuk benda yang nipis/lembaran seperti kertas, kain, daun, rambut. Biji → benda bulat/kecil. Ekor → haiwan. Buah → benda besar/umum.',
+   note:'Helai: nipis/lembaran; Biji: kecil/bulat; Ekor: haiwan; Orang: manusia'},
+
+  {sk:'Penjodoh Bilangan', type:'Aneka Pilihan',
+   q:'Pilih penjodoh bilangan yang paling tepat: "Tiga ___ guru menghadiri mesyuarat itu."',
+   opts:['Orang','Ekor','Biji','Helai'],ans:0,
+   hint:'Penjodoh bilangan untuk manusia ialah "orang"',
+   exp:'"Orang" ialah penjodoh bilangan untuk manusia. Ekor → haiwan. Biji → benda kecil/bulat. Helai → benda nipis. Jadi: tiga orang guru.',
+   note:'Manusia → orang; Haiwan → ekor; Benda tipis → helai'},
+
+  {sk:'Penjodoh Bilangan', type:'Aneka Pilihan',
+   q:'Penjodoh bilangan yang sesuai untuk "ikan" ialah:',
+   opts:['Ekor','Orang','Helai','Batang'],ans:0,
+   hint:'Penjodoh bilangan untuk haiwan',
+   exp:'"Ekor" digunakan untuk haiwan termasuk ikan, ayam, kucing, dan sebagainya. Orang → manusia. Helai → nipis/lembaran. Batang → panjang/tegak.',
+   note:'Ekor: semua haiwan'},
+
+  // KATA HUBUNG
+  {sk:'Kata Hubung', type:'Aneka Pilihan',
+   q:'Kata hubung yang menunjukkan hubungan <b>sebab-akibat</b> ialah:',
+   opts:['Kerana','Dan','Tetapi','Atau'],ans:0,
+   hint:'Hubungan sebab → akibat menggunakan kata hubung kausatif',
+   exp:'"Kerana" menunjukkan sebab. Contoh: "Dia lambat ke sekolah kerana terlena." Kata hubung lain yang serupa: lantaran, disebabkan, oleh sebab. "Dan" = tambahan; "tetapi" = pertentangan; "atau" = pilihan.',
+   note:'Kerana/lantaran = sebab; Maka/oleh itu = akibat'},
+
+  {sk:'Kata Hubung', type:'Aneka Pilihan',
+   q:'Pilih ayat yang menggunakan kata hubung <b>"walaupun"</b> dengan betul.',
+   opts:['Walaupun hujan, mereka tetap bermain.','Walaupun dia rajin, tetapi dia gagal.','Mereka bermain walaupun dan basah.','Dia datang walaupun atau tidak'],ans:0,
+   hint:'"Walaupun" = kontrast/berlawanan. Jangan gunakan "tetapi" bersamanya.',
+   exp:'"Walaupun" ialah kata hubung pertentangan. Elak penggunaan "walaupun...tetapi" — ini kesalahan berganda. Betul: "Walaupun hujan, mereka tetap bermain." atau "Mereka tetap bermain walaupun hujan."',
+   note:'Kesalahan lazim: "Walaupun...tetapi" — pilih SATU sahaja'},
+
+  // KATA SENDI NAMA
+  {sk:'Kata Sendi Nama', type:'Aneka Pilihan',
+   q:'Kata sendi nama yang betul dalam ayat "Dia pergi ___ sekolah" ialah:',
+   opts:['ke','di','dari','daripada'],ans:0,
+   hint:'"ke" menunjukkan arah/pergerakan ke suatu tempat',
+   exp:'"ke" = menuju ke arah sesuatu tempat (pergerakan). "di" = tempat berada/statis. "dari" = asal tempat. "daripada" = asal (untuk benda hidup/abstrak). Jadi: pergi ke sekolah, berada di sekolah, balik dari sekolah.',
+   note:'ke = hala tuju; di = lokasi statik; dari(pada) = asal'},
+
+  {sk:'Kata Sendi Nama', type:'Aneka Pilihan',
+   q:'Ayat manakah yang menggunakan kata sendi nama dengan betul?',
+   opts:['Buku itu terjatuh dari mejanya.','Dia duduk ke kerusi.','Saya tinggal daripada Johor.','Dia balik di kampung.'],ans:0,
+   hint:'Semak penggunaan "dari" vs "daripada" vs "ke" vs "di"',
+   exp:'"Dari" digunakan untuk tempat asal (dari meja, dari sekolah). "Daripada" untuk manusia/abstrak (daripada Encik Ali, daripada segi). "ke" untuk arah. "di" untuk lokasi statik.',
+   note:'"dari" = tempat; "daripada" = orang/abstrak'},
+
+  // KATA PEMERI
+  {sk:'Kata Pemeri', type:'Aneka Pilihan',
+   q:'Kata pemeri dalam Bahasa Melayu ialah:',
+   opts:['Ialah dan adalah','Dan dan atau','Pada dan untuk','Ini dan itu'],ans:0,
+   hint:'Kata pemeri menghubungkan subjek dengan predikat',
+   exp:'"Ialah" dan "adalah" ialah kata pemeri. "Ialah" digunakan apabila predikat adalah kata nama/frasa nama. "Adalah" digunakan apabila predikat adalah kata adjektif/frasa adjektif.',
+   note:'"Ialah" + kata nama; "adalah" + kata adjektif'},
+
+  {sk:'Kata Pemeri', type:'Aneka Pilihan',
+   q:'Pilih penggunaan kata pemeri yang betul.',
+   opts:['Ahmad ialah seorang doktor.','Ahmad adalah seorang doktor.','Ahmad ialah rajin.','Ahmad adalah peguam itu.'],ans:0,
+   hint:'"Ialah" + frasa nama; "adalah" + frasa adjektif',
+   exp:'"Ahmad ialah seorang doktor" — betul kerana predikat (seorang doktor) adalah frasa nama. "Ahmad adalah rajin" — betul kerana predikat (rajin) adalah adjektif. "Ahmad ialah rajin" — SALAH.',
+   note:'Ialah + FN ✓; Adalah + FA ✓; Ialah + FA ✗'},
+
+  // KATA PENGUAT
+  {sk:'Kata Penguat', type:'Aneka Pilihan',
+   q:'Kata penguat dalam ayat "Dia <b>sangat</b> bijak" ialah:',
+   opts:['Sangat','Dia','Bijak','Tiada'],ans:0,
+   hint:'Kata penguat memperkuat makna kata adjektif',
+   exp:'"Sangat" ialah kata penguat hadapan (hadir sebelum adjektif). Kata penguat lain: amat, terlalu, paling, sekali (belakang). Contoh: "rajin sekali", "paling tinggi", "amat cantik".',
+   note:'Penguat hadapan: sangat, amat, terlalu; Belakang: sekali, benar'},
+
+  // KATA NAFI
+  {sk:'Kata Nafi', type:'Aneka Pilihan',
+   q:'Kata nafi yang betul untuk kata kerja ialah:',
+   opts:['Tidak','Bukan','Tiada','Tanpa'],ans:0,
+   hint:'"Tidak" menafikan kata kerja dan kata adjektif',
+   exp:'"Tidak" digunakan untuk menafikan kata kerja dan kata adjektif: "tidak makan", "tidak cantik". "Bukan" digunakan untuk menafikan kata nama/frasa nama: "Ini bukan buku saya." "Tiada" = tidak ada.',
+   note:'"Tidak" + KK/KA; "Bukan" + KN'},
+
+  // AYAT AKTIF & PASIF
+  {sk:'Ayat Aktif & Pasif', type:'Aneka Pilihan',
+   q:'Tukarkan ayat aktif berikut kepada ayat pasif: "Ali menulis surat itu."',
+   opts:['Surat itu ditulis oleh Ali.','Surat itu menulis Ali.','Ali ditulis surat itu.','Surat itu telah Ali tulis.'],ans:0,
+   hint:'Objek → subjek; guna kata kerja pasif (di-) + oleh',
+   exp:'Ayat aktif: Ali (S) menulis (KK) surat itu (O). Ayat pasif: Surat itu (S) ditulis (KK pasif) oleh Ali (pelaku). Kata kerja pasif: di- menggantikan meN-.',
+   note:'Aktif: S + meN- + O → Pasif: O + di- + oleh + S'},
+
+  {sk:'Ayat Aktif & Pasif', type:'Aneka Pilihan',
+   q:'Antara berikut, manakah ayat pasif yang betul?',
+   opts:['Buku itu dibaca oleh kakak saya.','Buku itu membaca oleh kakak saya.','Kakak saya dibaca buku itu.','Buku itu kakak membacakannya.'],ans:0,
+   hint:'Ayat pasif mesti ada kata kerja berawalan di-',
+   exp:'"Buku itu dibaca oleh kakak saya" ialah ayat pasif yang betul. Ciri-ciri: (1) objek jadi subjek, (2) kata kerja berawalan di-, (3) pelaku didahului "oleh".',
+   note:'Ayat pasif: di- + kata kerja + oleh + pelaku'},
+
+  {sk:'Ayat Aktif & Pasif', type:'Aneka Pilihan',
+   q:'Dalam ayat pasif dengan ganti nama diri pertama/kedua, bentuknya ialah:',
+   opts:['Saya baca buku itu. / Awak masak nasi ini.','Buku itu disaya baca.','Buku itu dibaca oleh saya.','Semua betul bergantung konteks'],ans:0,
+   hint:'Kata ganti diri tidak pakai "oleh" dalam ayat pasif khas',
+   exp:'Ayat pasif khas (dengan kata ganti diri): ganti nama diri hadir SEBELUM kata kerja tanpa "oleh". Contoh: "Saya baca buku itu." (bukan "Buku itu dibaca oleh saya" — ini kurang tepat untuk orang pertama).',
+   note:'Pasif khas: Saya/Kami/Awak + KK dasar + Objek'},
+
+  // CAKAP AJUK & CAKAP PINDAH
+  {sk:'Cakap Ajuk & Cakap Pindah', type:'Aneka Pilihan',
+   q:'Tukarkan cakap ajuk berikut kepada cakap pindah: "Saya akan datang esok," kata Ali.',
+   opts:['Ali berkata bahawa dia akan datang keesokan harinya.','Ali berkata bahawa saya akan datang esok.','Ali berkata saya akan datang esok.','Ali berkata bahawa ali akan datang esok.'],ans:0,
+   hint:'Tukar "saya" → "dia"; "esok" → "keesokan harinya"',
+   exp:'Cakap pindah: (1) tambah "bahawa", (2) tukar ganti nama (saya→dia), (3) tukar kata waktu/tempat (esok→keesokan harinya, sini→situ), (4) tukar kata tanya jika ada.',
+   note:'Saya→dia; Esok→keesokan harinya; Sini→situ'},
+
+  // KESALAHAN BAHASA
+  {sk:'Kesalahan Bahasa', type:'Aneka Pilihan',
+   q:'Kenal pasti kesalahan dalam ayat: "Dia tidak hadir ke sekolah <b>disebabkan</b> sakit."',
+   opts:['Sepatutnya "disebabkan oleh" atau "kerana"','Ayat ini betul','Sepatutnya "lantaran kerana"','Sepatutnya "oleh sebab disebabkan"'],ans:0,
+   hint:'"Disebabkan" perlu diikuti "oleh" atau gantikan dengan "kerana"',
+   exp:'"Disebabkan" ialah kata kerja pasif yang memerlukan "oleh": "disebabkan oleh penyakit". Atau guna "kerana" sahaja: "kerana sakit". Elak "disebabkan kerana" — ini pertindihan.',
+   note:'"disebabkan oleh" ATAU "kerana" — jangan campur'},
+
+  {sk:'Kesalahan Bahasa', type:'Aneka Pilihan',
+   q:'Ayat manakah yang BETUL dari segi tatabahasa?',
+   opts:['Para pelajar dinasihatkan supaya belajar bersungguh-sungguh.','Para-para pelajar dinasihatkan supaya belajar.','Para pelajar-pelajar dinasihatkan supaya belajar.','Para pelajar dinasihatkan agar supaya belajar.'],ans:0,
+   hint:'"Para" sudah bermaksud jamak — jangan gandakan subjek',
+   exp:'"Para pelajar" sudah menunjukkan ramai. Salah: "para pelajar-pelajar" (berganda). Salah: "agar supaya" (pertindihan — pilih satu). Betul: "para pelajar" + "supaya" ATAU "agar".',
+   note:'"Para" = jamak; "agar supaya" = pertindihan'},
+
+  // TANDA BACA
+  {sk:'Tanda Baca', type:'Aneka Pilihan',
+   q:'Tanda baca yang digunakan untuk memisahkan unsur dalam senarai ialah:',
+   opts:['Koma ( , )','Noktah ( . )','Tanda seru ( ! )','Tanda soal ( ? )'],ans:0,
+   hint:'Koma digunakan untuk memisahkan item dalam senarai',
+   exp:'Koma ( , ) digunakan untuk: (1) memisahkan item dalam senarai, (2) selepas kata pangkal ayat, (3) mengasingkan anak ayat. Noktah = tamat ayat. ! = seruan. ? = soalan.',
+   note:'Koma: senarai/serangan; Noktah: tamat ayat; Titik bertindih: penjelasan'},
+
+  {sk:'Tanda Baca', type:'Aneka Pilihan',
+   q:'Dalam cakap ajuk, tanda baca yang diletakkan sebelum kata yang dituturkan ialah:',
+   opts:['Tanda koma dan tanda petik','Tanda noktah sahaja','Titik bertindih sahaja','Tanda seru'],ans:0,
+   hint:'Kata-kata yang dituturkan diletakkan dalam tanda petik',
+   exp:'Dalam penulisan dialog/cakap ajuk: (1) guna tanda koma sebelum petikan, (2) letakkan kata yang dituturkan dalam tanda petik (" "). Contoh: Ahmad berkata, "Saya suka membaca."',
+   note:'Format: [S] berkata, "[kata yang dituturkan]"'},
 ],
-waves: [
-  {q:"The frequency of a wave is 500 Hz and its speed is 340 m/s. What is its wavelength?",opts:["0.68 m","170000 m","1.47 m","0.34 m"],ans:0,hint:"v = fλ",exp:"λ = v/f = 340/500 = 0.68 m. This is approximately the wavelength of a 500 Hz sound wave in air.",formula:"v = fλ → λ = v/f",type:"Wave Properties"},
-  {q:"A mass-spring system completes 20 oscillations in 10 s. What is the time period?",opts:["0.5 s","2 s","0.2 s","20 s"],ans:0,hint:"T = total time / number of oscillations",exp:"T = 10/20 = 0.5 s. Frequency f = 1/T = 2 Hz. Always check: T is time for ONE complete oscillation.",formula:"T = t/N, f = 1/T",type:"SHM"},
-  {q:"In simple harmonic motion, what is the phase relationship between displacement and acceleration?",opts:["180° (anti-phase)","90° (quarter cycle)","In phase (0°)","270°"],ans:0,hint:"a = -ω²x, the negative sign means...",exp:"In SHM, a = -ω²x. The negative sign shows acceleration is ALWAYS opposite to displacement (anti-phase, 180°). When displacement is maximum positive, acceleration is maximum negative.",formula:"a = -ω²x",type:"SHM"},
-  {q:"Two waves of equal amplitude and frequency are superposed. For destructive interference to occur, their path difference must be:",opts:["(n+½)λ","nλ","λ/4","2λ"],ans:0,hint:"Destructive = antiphase = out of step by half wavelength",exp:"Destructive interference occurs when the path difference is an odd multiple of half wavelengths: (n+½)λ = λ/2, 3λ/2, 5λ/2... This gives antiphase superposition (cancellation).",formula:"Path diff = (n+½)λ for destructive",type:"Superposition"},
-  {q:"A wave has equation y = 0.05 sin(2πt/0.04). What is the maximum velocity of a particle?",opts:["7.85 m/s","0.05 m/s","2.5 m/s","157 m/s"],ans:0,hint:"v_max = ωA, where ω = 2π/T",exp:"A = 0.05 m, T = 0.04 s, ω = 2π/0.04 = 50π = 157.1 rad/s. v_max = ωA = 157.1 × 0.05 = 7.85 m/s.",formula:"v_max = ωA = 2πfA",type:"SHM"},
-  {q:"The Doppler effect causes a moving source of sound to:",opts:["Produce higher frequency when approaching, lower when receding","Always produce higher frequency","Always produce lower frequency","Produce louder sound when approaching"],ans:0,hint:"Approaching = wavelength compressed ahead",exp:"As a source approaches, sound waves are compressed (shorter wavelength, higher frequency). As it recedes, waves are stretched (longer wavelength, lower frequency).",formula:"f = f₀(v±v_observer)/(v∓v_source)",type:"Doppler"},
-  {q:"Stationary waves form when:",opts:["Two identical waves travel in opposite directions","Any two waves superpose","Two waves of different frequencies interfere","Waves reflect off hard surfaces"],ans:0,hint:"Stationary waves require specific conditions",exp:"Stationary (standing) waves form when two waves of equal frequency, wavelength, and amplitude travel in opposite directions. The waves superpose to form nodes (zero displacement) and antinodes (maximum displacement).",formula:"Nodes: λ/2 apart",type:"Superposition"},
-  {q:"The intensity of a wave is proportional to:",opts:["The square of the amplitude","The amplitude","The frequency","The wavelength"],ans:0,hint:"I ∝ A²",exp:"Intensity I ∝ A². This means doubling the amplitude quadruples the intensity. This applies to all wave types (sound, light, water waves).",formula:"I ∝ A²",type:"Wave Properties"},
-  {q:"Light of wavelength 600 nm passes through a diffraction grating with 500 lines per mm. What is the angle of the first order maximum?",opts:["17.5°","8.6°","30°","45°"],ans:0,hint:"d sinθ = nλ, find d first",exp:"d = 1mm/500 = 2×10⁻⁶ m. sinθ = nλ/d = 1×600×10⁻⁹/(2×10⁻⁶) = 0.3. θ = arcsin(0.3) = 17.5°.",formula:"d sinθ = nλ",type:"Superposition"},
-  {q:"In a longitudinal wave, particles vibrate:",opts:["Parallel to the direction of energy transfer","Perpendicular to energy transfer","In circles","Randomly"],ans:0,hint:"Longitudinal vs transverse - think of compression and rarefaction",exp:"In longitudinal waves (e.g. sound), particles oscillate parallel to the direction of wave propagation, creating regions of compression and rarefaction.",formula:"Sound: v = √(B/ρ)",type:"Wave Properties"},
-  {q:"A pendulum with length 1 m has a period of approximately:",opts:["2 s","1 s","4 s","0.5 s"],ans:0,hint:"T = 2π√(l/g)",exp:"T = 2π√(l/g) = 2π√(1/10) = 2π × 0.316 ≈ 2.0 s (using g≈10 m/s²). Note T ∝ √l, independent of mass.",formula:"T = 2π√(l/g)",type:"SHM"},
-  {q:"What condition must be met for a system to undergo resonance?",opts:["Driving frequency equals natural frequency","Amplitude is maximum","Damping is applied","Frequency is very high"],ans:0,hint:"Resonance occurs at a specific frequency",exp:"Resonance occurs when the driving frequency equals the natural frequency of the system. At resonance, energy transfer is maximised and amplitude reaches maximum (limited only by damping).",formula:"f_drive = f_natural",type:"SHM"},
-  {q:"For a transverse wave, which physical quantity oscillates perpendicular to the direction of propagation?",opts:["Displacement","Speed","Pressure","Temperature"],ans:0,hint:"Transverse = across the direction of travel",exp:"In a transverse wave (e.g. light, water surface), displacement of particles is perpendicular to the direction of energy transfer. Examples: EM waves, S-seismic waves.",formula:"Transverse: displacement ⊥ propagation",type:"Wave Properties"},
-  {q:"Young's double slit experiment uses light of λ=500 nm, slit separation 0.5 mm, screen at 2 m. What is the fringe spacing?",opts:["2 mm","1 mm","0.5 mm","4 mm"],ans:0,hint:"w = λD/s",exp:"w = λD/s = (500×10⁻⁹ × 2) / (0.5×10⁻³) = 10⁻⁶/5×10⁻⁴ = 2×10⁻³ m = 2 mm.",formula:"w = λD/s",type:"Superposition"},
-  {q:"Sound waves cannot travel through a vacuum because:",opts:["They need a medium to transfer energy via particle vibration","They are too slow","Vacuum absorbs them","They have too low frequency"],ans:0,hint:"Sound is a mechanical wave",exp:"Sound waves are mechanical (longitudinal) waves that require particles to vibrate. A vacuum has no particles, so no mechanical wave can propagate. This contrasts with electromagnetic waves which can travel through vacuum.",formula:"Mechanical waves require medium",type:"Wave Properties"},
-  {q:"The period of a mass-spring system is T = 2π√(m/k). Doubling the mass will:",opts:["Increase T by factor √2","Double T","Halve T","Not change T"],ans:0,hint:"T ∝ √m",exp:"Since T = 2π√(m/k), if m doubles: T' = 2π√(2m/k) = √2 × T. So T increases by factor √2 ≈ 1.41.",formula:"T = 2π√(m/k), T ∝ √m",type:"SHM"},
-  {q:"In Young's double slit, what happens to fringe spacing if the wavelength is increased?",opts:["Increases","Decreases","Stays the same","Depends on intensity"],ans:0,hint:"w = λD/s",exp:"w = λD/s. Since w is directly proportional to λ, increasing wavelength increases fringe spacing. Red light (longer λ) gives wider fringes than blue light.",formula:"w = λD/s ∝ λ",type:"Superposition"},
-  {q:"Which type of wave can be polarised?",opts:["Transverse waves only","Longitudinal waves only","Both transverse and longitudinal","Neither"],ans:0,hint:"Polarisation restricts vibration to one plane",exp:"Only transverse waves can be polarised (vibrations restricted to one plane). Longitudinal waves cannot be polarised because particles already vibrate along one axis (parallel to propagation).",formula:"Polarisation: transverse waves only",type:"Wave Properties"},
-  {q:"Energy stored in a spring undergoing SHM at maximum displacement:",opts:["All elastic PE, zero KE","All KE, zero PE","Equal KE and PE","All gravitational PE"],ans:0,hint:"At maximum displacement, what is the velocity?",exp:"At maximum displacement (amplitude), velocity = 0 so KE = 0. All energy is stored as elastic (or gravitational) PE. At equilibrium position, PE = 0 and KE is maximum.",formula:"E_total = ½kA² = ½mv²_max",type:"SHM"},
-  {q:"A string vibrates with 3 loops (3rd harmonic). If the fundamental wavelength is 2L, what wavelength is present?",opts:["2L/3","L/3","2L","L"],ans:0,hint:"3rd harmonic means 3 half-wavelengths fit in length L",exp:"In the nth harmonic, n half-wavelengths fit in length L: nλ/2 = L → λ = 2L/n. For n=3: λ = 2L/3.",formula:"λₙ = 2L/n",type:"Superposition"},
-  {q:"The phase difference between displacement and velocity in SHM is:",opts:["90° (π/2)","180° (π)","0°","270°"],ans:0,hint:"v = dx/dt = ωA cos(ωt) when x = A sin(ωt)",exp:"If x = A sin(ωt), then v = ωA cos(ωt) = ωA sin(ωt + π/2). So velocity leads displacement by 90°.",formula:"x = A sinωt, v = Aω cosωt",type:"SHM"}
+
+// ================================================================
+// PERIBAHASA
+// ================================================================
+peribahasa:[
+  {sk:'Simpulan Bahasa', type:'Aneka Pilihan',
+   q:'Apakah maksud simpulan bahasa <b>"ringan tulang"</b>?',
+   opts:['Rajin bekerja','Malas bekerja','Kurus badannya','Lemah fizikal'],ans:0,
+   hint:'Lawan kepada "berat tulang"',
+   exp:'"Ringan tulang" bermaksud rajin dan suka bekerja atau membantu orang lain. Lawannya ialah "berat tulang" yang bermaksud malas.',
+   note:'Ringan tulang = rajin; Berat tulang = malas'},
+
+  {sk:'Simpulan Bahasa', type:'Aneka Pilihan',
+   q:'Simpulan bahasa <b>"panjang tangan"</b> bermaksud:',
+   opts:['Suka mencuri','Pemurah','Tangannya panjang','Suka memukul'],ans:0,
+   hint:'Konotasi negatif — berkait dengan harta orang lain',
+   exp:'"Panjang tangan" bermaksud suka mencuri atau mengambil harta orang lain. Contoh: "Budak itu panjang tangan, jangan simpan barang berharga di situ."',
+   note:'Panjang tangan = suka mencuri'},
+
+  {sk:'Simpulan Bahasa', type:'Aneka Pilihan',
+   q:'Maksud simpulan bahasa <b>"buah mulut"</b> ialah:',
+   opts:['Bahan perbualan','Makanan','Orang yang pandai berkata','Gosip sahaja'],ans:0,
+   hint:'Sesuatu yang menjadi bahan "mulut" orang ramai',
+   exp:'"Buah mulut" bermaksud bahan perbualan atau perkara yang diperkatakan oleh ramai orang. Contoh: "Kejadian itu menjadi buah mulut penduduk kampung."',
+   note:'Buah mulut = bahan perbualan umum'},
+
+  {sk:'Simpulan Bahasa', type:'Aneka Pilihan',
+   q:'<b>"Berbudi bahasa"</b> bermaksud:',
+   opts:['Bersopan santun','Berbahasa Melayu','Suka berpuisi','Fasih bercakap'],ans:0,
+   hint:'Budi = peribadi yang baik; bahasa = percakapan yang baik',
+   exp:'"Berbudi bahasa" bermaksud berkelakuan sopan dan beradab dalam percakapan dan tingkah laku. Seseorang yang berbudi bahasa dihormati oleh masyarakat.',
+   note:'Berbudi bahasa = sopan santun dalam kata dan perbuatan'},
+
+  {sk:'Pepatah', type:'Aneka Pilihan',
+   q:'Apakah mesej pepatah <b>"Melentur buluh biarlah dari rebungnya"</b>?',
+   opts:['Didik anak sejak kecil','Buluh mudah dilentur','Jangan buat kerja separuh jalan','Pilih masa yang sesuai'],ans:0,
+   hint:'Rebung = buluh yang masih muda/kecil',
+   exp:'"Melentur buluh biarlah dari rebungnya" bermaksud mendidik anak-anak atau seseorang haruslah dilakukan sejak kecil/awal, kerana waktu itulah yang paling mudah membentuk peribadi mereka.',
+   note:'Rebung (muda) = kanak-kanak; Lentur = didik/bentuk'},
+
+  {sk:'Pepatah', type:'Aneka Pilihan',
+   q:'Pepatah <b>"Biar lambat asalkan selamat"</b> membawa pengajaran:',
+   opts:['Berhati-hati lebih baik daripada tergesa-gesa','Lambat itu baik','Jangan cepat','Selamat adalah perkara utama'],ans:0,
+   hint:'Konteks: dalam usaha mencapai sesuatu',
+   exp:'Pepatah ini mengajar kita bahawa lebih baik melakukan sesuatu dengan berhati-hati dan teliti walaupun lambat, berbanding tergesa-gesa tetapi menimbulkan risiko atau kesilapan.',
+   note:'Kualiti > kelajuan dalam konteks keselamatan'},
+
+  {sk:'Pepatah', type:'Aneka Pilihan',
+   q:'Maksud pepatah <b>"Harimau mati meninggalkan belang, manusia mati meninggalkan nama"</b>:',
+   opts:['Nama baik kekal walaupun sudah mati','Harimau dan manusia berbeza','Jangan lupakan orang mati','Nama penting untuk harimau'],ans:0,
+   hint:'Belang = tanda pengenalan harimau; nama = reputasi manusia',
+   exp:'Pepatah ini bermaksud reputasi dan nama baik seseorang akan kekal dikenang oleh masyarakat walaupun setelah dia meninggal dunia. Justeru, penting untuk kita menjaga nama baik semasa hidup.',
+   note:'Nama baik = warisan yang berkekalan'},
+
+  {sk:'Perumpamaan', type:'Aneka Pilihan',
+   q:'Perumpamaan <b>"Seperti katak di bawah tempurung"</b> bermaksud:',
+   opts:['Orang yang sempit pemikirannya','Katak yang tinggal dalam hutan','Orang yang berhati-hati','Orang yang pemalu'],ans:0,
+   hint:'Tempurung = ruang yang kecil dan terhad',
+   exp:'"Seperti katak di bawah tempurung" menggambarkan seseorang yang sempit pemikirannya, tidak berpengalaman, dan tidak mahu mengetahui perkara di luar lingkungannya.',
+   note:'Tempurung = dunia yang sempit; katak = orang yang terbatas'},
+
+  {sk:'Perumpamaan', type:'Aneka Pilihan',
+   q:'Apakah maksud perumpamaan <b>"Bagai aur dengan tebing"</b>?',
+   opts:['Saling memerlukan antara satu sama lain','Tinggal berdekatan','Bersaing satu sama lain','Bermusuhan tetapi terpaksa bersama'],ans:0,
+   hint:'Aur (buluh) tumbuh di tebing — apa hubungan mereka?',
+   exp:'"Bagai aur dengan tebing" menggambarkan hubungan yang saling memerlukan. Aur mengukuhkan tebing (mencegah hakisan) manakala tebing menyediakan tapak untuk aur tumbuh. Saling bergantung.',
+   note:'Aur + tebing = saling bergantung dan memerlukan'},
+
+  {sk:'Bidalan', type:'Aneka Pilihan',
+   q:'Bidalan <b>"Sesal dahulu pendapatan, sesal kemudian tidak berguna"</b> bermaksud:',
+   opts:['Fikirkan dahulu sebelum bertindak','Jangan menyesal','Bertindak dahulu fikirkan kemudian','Penyesalan adalah sia-sia'],ans:0,
+   hint:'"Sesal dahulu" = berfikir dahulu sebelum bertindak',
+   exp:'Bidalan ini mengajar kita agar berfikir masak-masak dan berhati-hati sebelum mengambil sesuatu tindakan. Setelah berlaku kesilapan, penyesalan tidak akan mengubah keadaan.',
+   note:'Berfikir dulu (sesal dahulu) = elak masalah kemudian'},
+
+  {sk:'Bidalan', type:'Aneka Pilihan',
+   q:'<b>"Sedikit-sedikit, lama-lama jadi bukit"</b> mengajar kita tentang:',
+   opts:['Kepentingan berjimat-cermat dan konsisten','Bukit terbentuk dari sedikit tanah','Sabar dalam menunggu','Jangan tamak dalam mengumpul'],ans:0,
+   hint:'Usaha kecil yang konsisten membawa hasil yang besar',
+   exp:'Bidalan ini mengajar bahawa sesuatu yang dikerjakan sedikit demi sedikit secara konsisten akhirnya akan menghasilkan sesuatu yang besar. Contoh: berjimat sedikit setiap hari akan mengumpul wang yang banyak.',
+   note:'Konsisten + sabar = hasil yang besar lama-kelamaan'},
+
+  {sk:'Maksud Peribahasa', type:'Aneka Pilihan',
+   q:'<b>"Bagai mencincang air"</b> bermaksud:',
+   opts:['Usaha yang sia-sia','Kerja yang mudah','Bekerja tanpa henti','Membuang masa'],ans:0,
+   hint:'Cuba cincang/potong air — apa yang berlaku?',
+   exp:'"Bagai mencincang air" bermaksud melakukan sesuatu usaha yang sia-sia atau tidak mendatangkan hasil. Air yang dipotong akan kembali bersatu — usaha itu tidak berkesan.',
+   note:'Cincang air = usaha sia-sia, tiada hasil kekal'},
+
+  {sk:'Penggunaan dalam Ayat', type:'Aneka Pilihan',
+   q:'Pilih peribahasa yang paling sesuai untuk situasi: <i>"Dua adik beradik itu walaupun berbeza pendapat tetapi saling menyayangi dan memerlukan."</i>',
+   opts:['Bagai aur dengan tebing','Seperti katak di bawah tempurung','Bagai mencincang air','Melentur buluh dari rebungnya'],ans:0,
+   hint:'Situasi: berbeza tetapi saling memerlukan',
+   exp:'"Bagai aur dengan tebing" paling sesuai kerana ia menggambarkan hubungan yang berbeza tetapi saling melengkapi dan memerlukan antara satu sama lain.',
+   note:'Pilih peribahasa yang tepat konteksnya'},
 ],
-electricity: [
-  {q:"A 12 Ω and 6 Ω resistor are connected in parallel. What is the combined resistance?",opts:["4 Ω","18 Ω","9 Ω","2 Ω"],ans:0,hint:"1/R = 1/R1 + 1/R2",exp:"1/R = 1/12 + 1/6 = 1/12 + 2/12 = 3/12 = 1/4. So R = 4 Ω. Note: parallel combination is always less than the smallest individual resistor.",formula:"1/R_parallel = 1/R₁ + 1/R₂",type:"Circuits"},
-  {q:"A battery of EMF 6 V and internal resistance 0.5 Ω drives a current of 2 A. What is the terminal voltage?",opts:["5 V","6 V","7 V","4 V"],ans:0,hint:"Terminal voltage = EMF - voltage drop across internal resistance",exp:"V_terminal = ε - Ir = 6 - (2 × 0.5) = 6 - 1 = 5 V. The 'lost voltage' across internal resistance = 1 V.",formula:"V = ε - Ir",type:"EMF"},
-  {q:"A capacitor of 100 μF is charged to 50 V. What charge is stored?",opts:["5 mC","500 μC","2000 μC","0.5 μC"],ans:0,hint:"Q = CV",exp:"Q = CV = 100×10⁻⁶ × 50 = 5000×10⁻⁶ C = 5 mC. Also 5000 μC = 5 mC.",formula:"Q = CV",type:"Capacitors"},
-  {q:"Kirchhoff's Current Law states that:",opts:["Sum of currents into a junction equals sum leaving","Voltage around a loop sums to zero","Current is proportional to voltage","Charge is conserved in capacitors"],ans:0,hint:"KCL is about charge conservation",exp:"Kirchhoff's Current Law (KCL): The algebraic sum of currents at any junction is zero, i.e. currents in = currents out. This is a consequence of conservation of charge.",formula:"ΣI_in = ΣI_out",type:"Circuits"},
-  {q:"A wire has resistance 10 Ω. If its length is doubled and cross-sectional area halved, what is its new resistance?",opts:["40 Ω","20 Ω","5 Ω","80 Ω"],ans:0,hint:"R = ρL/A",exp:"R = ρL/A. New: R' = ρ(2L)/(A/2) = 4ρL/A = 4R = 40 Ω. Doubling length doubles R, halving area doubles R again: 4×10 = 40 Ω.",formula:"R = ρL/A",type:"Ohm's Law"},
-  {q:"Two capacitors of 3 μF and 6 μF are connected in series. What is the combined capacitance?",opts:["2 μF","9 μF","4.5 μF","18 μF"],ans:0,hint:"1/C = 1/C1 + 1/C2",exp:"1/C = 1/3 + 1/6 = 2/6 + 1/6 = 3/6 = 1/2. C = 2 μF. Series capacitance is always less than the smallest.",formula:"1/C_series = 1/C₁ + 1/C₂",type:"Capacitors"},
-  {q:"The energy stored in a charged capacitor with capacitance C and voltage V is:",opts:["½CV²","CV","CV²","¼CV²"],ans:0,hint:"Energy = area under Q-V graph (triangle)",exp:"W = ½CV² = ½QV = Q²/2C. The ½ factor comes from the average voltage during charging. All three expressions are equivalent.",formula:"W = ½CV²",type:"Capacitors"},
-  {q:"A potential divider has resistors R1=3000 Ω and R2=1000 Ω from a 12 V supply. What is the voltage across R2?",opts:["3 V","9 V","4 V","6 V"],ans:0,hint:"V₂ = V × R2/(R1+R2)",exp:"V₂ = 12 × 1000/(3000+1000) = 12 × 0.25 = 3 V. The potential divider divides voltage in proportion to resistances.",formula:"V₂ = V_s × R₂/(R₁+R₂)",type:"Circuits"},
-  {q:"The resistance of a thermistor (NTC type) when temperature increases will:",opts:["Decrease","Increase","Stay the same","Become zero"],ans:0,hint:"NTC = Negative Temperature Coefficient",exp:"An NTC (Negative Temperature Coefficient) thermistor has decreasing resistance as temperature increases. More thermal energy frees more charge carriers, increasing conductivity.",formula:"NTC: R decreases as T increases",type:"Circuits"},
-  {q:"Current density J is defined as:",opts:["Current per unit cross-sectional area","Current times area","Charge per unit volume","Voltage per unit length"],ans:0,hint:"J = I/A",exp:"Current density J = I/A (A/m²). It tells us how much current passes through each square metre of cross-section. Useful for comparing wires of different sizes.",formula:"J = I/A = nqv_d",type:"Ohm's Law"},
-  {q:"An electric heater rated at 3 kW is used for 2 hours. How much energy does it consume?",opts:["21.6 MJ","6000 J","360 J","21600 J"],ans:0,hint:"E = Pt, convert to SI units",exp:"E = Pt = 3000 × (2×3600) = 3000 × 7200 = 21,600,000 J = 21.6 MJ. Or in kWh: 3 × 2 = 6 kWh.",formula:"E = Pt",type:"Circuits"},
-  {q:"Ohm's Law states that:",opts:["Current is proportional to voltage (at constant temperature)","Resistance is constant","Power = voltage × current","Charge = current × time"],ans:0,hint:"Ohm's Law has an important qualifier",exp:"Ohm's Law: V = IR, where I ∝ V at constant temperature. The qualifier 'constant temperature' is important - resistors that obey Ohm's Law are 'ohmic'. Filament lamps are non-ohmic.",formula:"V = IR (Ohm's Law)",type:"Ohm's Law"},
-  {q:"A capacitor discharges through a resistor. The charge Q at time t is given by Q = Q₀e^(-t/RC). What is the time constant τ?",opts:["RC","R/C","1/RC","C/R"],ans:0,hint:"τ is the time to reach 1/e of original charge",exp:"The time constant τ = RC (in seconds if R is in Ω and C in F). After time τ, charge falls to Q₀/e ≈ 37% of original. After 5τ, effectively fully discharged.",formula:"Q = Q₀e^(-t/τ), τ = RC",type:"Capacitors"},
-  {q:"Power dissipated in a resistor can be expressed as:",opts:["I²R or V²/R","IV only","I/V","V×R"],ans:0,hint:"P = IV = I²R = V²/R - all equivalent",exp:"P = IV = I²R = V²/R. These are all equivalent using V=IR. For given resistance, power increases with current squared - hence the importance of low resistance in power transmission.",formula:"P = IV = I²R = V²/R",type:"Circuits"},
-  {q:"In a series circuit with resistors R₁ and R₂:",opts:["Current is the same through both","Voltage is the same across both","Power is equal in both","Resistance adds inversely"],ans:0,hint:"Series circuit: only one path for current",exp:"In a series circuit, the same current flows through all components (conservation of charge, one path only). Voltage divides proportionally to resistance.",formula:"I_series = same, V divides",type:"Circuits"},
-  {q:"The drift velocity of electrons in a wire is given by:",opts:["v_d = I/(nAq)","v_d = nAqI","v_d = nI/Aq","v_d = q/nAI"],ans:0,hint:"I = nAqv_d, rearrange",exp:"The current I = nAqv_d where n=number density of carriers, A=cross-section, q=charge per carrier. Rearranging: v_d = I/(nAq). Drift velocity is typically very slow (~mm/s).",formula:"I = nAqv_d → v_d = I/(nAq)",type:"Ohm's Law"},
-  {q:"A resistor has colour bands Orange, Orange, Red. Its resistance is:",opts:["3300 Ω","332 Ω","33 Ω","33 kΩ"],ans:0,hint:"Orange=3, Red=×100",exp:"Colour code: Orange(3), Orange(3), Red(×100). Value = 33 × 100 = 3300 Ω = 3.3 kΩ.",formula:"Resistor colour code",type:"Ohm's Law"},
-  {q:"What is the charge delivered by a 5 A current in 3 minutes?",opts:["900 C","15 C","5 C","18 C"],ans:0,hint:"Q = It, convert minutes to seconds",exp:"t = 3 × 60 = 180 s. Q = It = 5 × 180 = 900 C.",formula:"Q = It",type:"Circuits"},
-  {q:"EMF is the energy transferred to charge carriers per unit charge by the source. Its unit is:",opts:["Volts (V)","Joules (J)","Amperes (A)","Ohms (Ω)"],ans:0,hint:"EMF = energy/charge",exp:"EMF has units of J/C = Volts. It represents the energy given to each coulomb of charge by the source (battery/generator). Larger EMF = more energy per coulomb.",formula:"EMF = W/Q (J/C = V)",type:"EMF"},
-  {q:"Two batteries with EMF 6V and 4V (internal resistance 1Ω each) are connected in series aiding. Total EMF and internal resistance are:",opts:["10 V, 2 Ω","2 V, 2 Ω","10 V, 1 Ω","24 V, 1 Ω"],ans:0,hint:"Series batteries: EMFs add, internal resistances add",exp:"Series aiding: Total EMF = 6+4 = 10 V. Total internal resistance = 1+1 = 2 Ω. Series opposing would give EMF = 6-4 = 2 V.",formula:"Series: ε_total = Σε, r_total = Σr",type:"EMF"},
-  {q:"The unit of electrical resistivity ρ is:",opts:["Ω·m","Ω","Ω/m","Ω·m⁻¹"],ans:0,hint:"From R = ρL/A, find units of ρ",exp:"R = ρL/A → ρ = RA/L. Units: Ω × m² / m = Ω·m. Resistivity is a material property, resistance depends on dimensions too.",formula:"R = ρL/A, ρ in Ω·m",type:"Ohm's Law"}
+
+// ================================================================
+// KEFAHAMAN
+// ================================================================
+kefahaman:[
+  {sk:'Soalan Fakta Langsung', type:'Teknik Kefahaman',
+   ctx:'Encik Hamid ialah seorang petani yang rajin. Setiap hari, beliau bangun awal pagi untuk mengerjakan sawahnya. Walaupun usianya sudah lanjut, semangat beliau untuk bekerja tidak pernah luntur.',
+   q:'Apakah pekerjaan Encik Hamid berdasarkan petikan di atas?',
+   opts:['Petani','Nelayan','Guru','Peniaga'],ans:0,
+   hint:'Cari maklumat secara langsung dalam teks',
+   exp:'Jawapan boleh ditemui secara langsung dalam baris pertama: "Encik Hamid ialah seorang petani." Soalan fakta langsung memerlukan anda mengenal pasti maklumat yang tersurat dalam petikan.',
+   note:'Soalan fakta: jawapan tersurat dalam teks — salin/tulis semula'},
+
+  {sk:'Soalan Inferens', type:'Teknik Kefahaman',
+   ctx:'Encik Hamid ialah seorang petani yang rajin. Setiap hari, beliau bangun awal pagi untuk mengerjakan sawahnya. Walaupun usianya sudah lanjut, semangat beliau untuk bekerja tidak pernah luntur.',
+   q:'Apakah yang dapat kita simpulkan tentang watak Encik Hamid?',
+   opts:['Beliau seorang yang gigih dan berdedikasi','Beliau seorang yang kaya-raya','Beliau tidak suka bersosial','Beliau tidak mempunyai anak'],ans:0,
+   hint:'Baca antara baris — apakah sifat yang ditunjukkan melalui tindakannya?',
+   exp:'Inferens = kesimpulan yang tidak dinyatakan secara langsung. Daripada fakta "bangun awal pagi" + "semangat tidak luntur" + "usia lanjut", kita boleh simpulkan bahawa beliau gigih dan berdedikasi.',
+   note:'Inferens: gunakan fakta untuk membuat kesimpulan sendiri'},
+
+  {sk:'Nilai Murni & Pengajaran', type:'Teknik Kefahaman',
+   ctx:'Encik Hamid ialah seorang petani yang rajin. Setiap hari, beliau bangun awal pagi untuk mengerjakan sawahnya. Walaupun usianya sudah lanjut, semangat beliau untuk bekerja tidak pernah luntur.',
+   q:'Apakah nilai murni yang dapat dipelajari daripada petikan ini?',
+   opts:['Ketekunan dan semangat juang yang tinggi','Kepentingan wang dan harta','Nilai persahabatan','Nilai kesantunan berbahasa'],ans:0,
+   hint:'Nilai murni berkaitan sikap dan peribadi watak',
+   exp:'Nilai murni yang menonjol: ketekunan (bekerja setiap hari), semangat juang (tidak luntur walaupun tua), dan ketabahan. Jawapan nilai murni perlu dikaitkan dengan bukti dalam teks.',
+   note:'Nilai murni: kaitkan dengan perbuatan/sikap watak dalam teks'},
+
+  {sk:'Maksud Perkataan', type:'Teknik Kefahaman',
+   ctx:'Para petugas bomba itu bekerja keras tanpa menghiraukan bahaya demi menyelamatkan mangsa yang terperangkap dalam bangunan yang sedang terbakar.',
+   q:'Apakah maksud perkataan <b>"menghiraukan"</b> dalam konteks petikan?',
+   opts:['Mengambil berat/peduli','Melupakan','Menghindari','Melihat'],ans:0,
+   hint:'Lihat konteks: "tanpa menghiraukan bahaya" — mereka tidak ___ bahaya',
+   exp:'"Menghiraukan" bermaksud mengambil peduli atau memperhatikan. "Tanpa menghiraukan bahaya" = tidak mengambil peduli akan bahaya. Makna perkataan perlu dilihat dalam konteks ayat.',
+   note:'Maksud perkataan: pertimbangkan konteks ayat, bukan definisi kamus semata'},
+
+  {sk:'Soalan KBAT', type:'KBAT',
+   ctx:'Para petugas bomba itu bekerja keras tanpa menghiraukan bahaya demi menyelamatkan mangsa yang terperangkap dalam bangunan yang sedang terbakar.',
+   q:'Pada pendapat anda, apakah langkah-langkah yang boleh diambil untuk mencegah kebakaran bangunan?',
+   opts:['Pasang pengesan asap, latihan bomba, elak simpan bahan mudah terbakar','Jangan guna elektrik langsung','Tinggal di bangunan rendah sahaja','Tunggu bomba sedia membantu'],ans:0,
+   hint:'Soalan KBAT = memberi cadangan/pendapat yang rasional',
+   exp:'Soalan KBAT menguji pemikiran kritis. Jawapan terbaik memberi cadangan yang praktikal dan relevan: pasang pengesan asap, latih penghuni cara menggunakan alat pemadam, elakkan simpan bahan mudah terbakar.',
+   note:'KBAT: beri cadangan KONKRIT + RELEVAN + lebih dari 1 langkah'},
+
+  {sk:'Gaya Bahasa', type:'Teknik Kefahaman',
+   q:'Frasa <b>"wajahnya seputih kapas"</b> menggunakan gaya bahasa:',
+   opts:['Simile','Metafora','Personifikasi','Hiperbola'],ans:0,
+   hint:'Perbandingan yang menggunakan "seperti", "bagai", "seputih" dll.',
+   exp:'"Seputih kapas" ialah simile — perbandingan secara langsung menggunakan kata perbandingan (se- + adjektif). Metafora: "wajahnya kapas" (tanpa kata perbandingan). Personifikasi: sifat manusia pada bukan manusia.',
+   note:'Simile = ada kata perbandingan (seperti/bagai/se-); Metafora = tiada'},
+
+  {sk:'Gaya Bahasa', type:'Teknik Kefahaman',
+   q:'<b>"Sang Mentari menyapa bumi dengan senyumannya"</b> menggunakan gaya bahasa:',
+   opts:['Personifikasi','Simile','Hiperbola','Metafora'],ans:0,
+   hint:'Matahari diberi sifat manusia (menyapa, senyuman)',
+   exp:'Personifikasi = memberikan sifat atau tindakan manusia kepada bukan manusia. Di sini, matahari (bukan manusia) "menyapa" dan mempunyai "senyuman" — ini sifat manusia.',
+   note:'Personifikasi: bukan manusia + sifat/tindakan manusia'},
 ],
-fields: [
-  {q:"Two point charges Q and q are separated by distance r. The force between them is given by Coulomb's Law:",opts:["F = kQq/r²","F = kQq/r","F = kQ/r²","F = Qq/r²"],ans:0,hint:"Coulomb's Law is similar in form to Newton's gravitation",exp:"F = kQq/r² where k = 1/(4πε₀) = 8.99×10⁹ N·m²/C². The force is attractive for unlike charges and repulsive for like charges.",formula:"F = kQq/r² = Q₁Q₂/(4πε₀r²)",type:"Electric"},
-  {q:"The gravitational field strength g at height h above Earth's surface (Earth radius R) is proportional to:",opts:["1/(R+h)²","1/h²","1/h","(R+h)²"],ans:0,hint:"g = GM/r² where r is measured from centre",exp:"g = GM/(R+h)². As h increases, g decreases as 1/(R+h)². At Earth's surface, h≈0 so g ≈ GM/R² ≈ 9.81 m/s².",formula:"g = GM/r²",type:"Gravitational"},
-  {q:"The electric field between two parallel plates separated by 0.02 m with potential difference 400 V is:",opts:["20,000 V/m","8 V/m","200 V/m","0.05 V/m"],ans:0,hint:"E = V/d",exp:"E = V/d = 400/0.02 = 20,000 V/m = 20 kV/m. For uniform fields between parallel plates, E is constant everywhere between them.",formula:"E = V/d",type:"Electric"},
-  {q:"Magnetic flux Φ through an area A with field B at angle θ to the normal is:",opts:["Φ = BA cosθ","Φ = BA sinθ","Φ = BA","Φ = B/A"],ans:0,hint:"θ is the angle between B and the NORMAL to the area",exp:"Φ = BA cosθ, where θ is the angle between B and the area normal (NOT the angle between B and the plane). If B is perpendicular to the plane, θ=0 and Φ = BA.",formula:"Φ = BA cosθ (Wb = T·m²)",type:"Magnetic"},
-  {q:"Faraday's law states that the induced EMF is:",opts:["Equal to the rate of change of flux linkage","Proportional to the speed of the conductor","Equal to the resistance times current","Proportional to the field strength"],ans:0,hint:"EMF = -dΦN/dt",exp:"Faraday's Law: ε = -d(NΦ)/dt. The induced EMF equals the negative rate of change of flux linkage NΦ. The negative sign gives the direction (Lenz's law).",formula:"ε = -NdΦ/dt",type:"Induction"},
-  {q:"The force on a current-carrying conductor in a magnetic field is given by:",opts:["F = BIL sinθ","F = BIL cosθ","F = BIL","F = BL/I"],ans:0,hint:"F = BIl if current is perpendicular to field",exp:"F = BIL sinθ where θ is the angle between current direction and magnetic field. Maximum force when θ=90°. Zero force when current is parallel to field.",formula:"F = BIL sinθ",type:"Magnetic"},
-  {q:"Lenz's Law states that the direction of an induced current is such that:",opts:["It opposes the change that caused it","It amplifies the change","It follows the right-hand rule","It creates maximum EMF"],ans:0,hint:"Lenz's Law is about energy conservation",exp:"Lenz's Law: The induced current creates a magnetic field that opposes the change in flux that induced it. This is a consequence of energy conservation - if it aided the change, energy would be created from nothing.",formula:"Lenz's Law: ε = -NdΦ/dt",type:"Induction"},
-  {q:"The gravitational potential energy of a mass m at distance r from Earth (mass M) is:",opts:["U = -GMm/r","U = GMm/r","U = GMm/r²","U = -GMm/r²"],ans:0,hint:"The negative sign is important - escape requires work",exp:"GPE = -GMm/r. The negative value indicates that work must be done to escape Earth's gravity. At infinity, GPE = 0 (reference point). Binding energy = GMm/r.",formula:"U = -GMm/r",type:"Gravitational"},
-  {q:"A particle with charge q and mass m enters a magnetic field B perpendicular to its velocity. It moves in a circle of radius:",opts:["r = mv/(qB)","r = qB/(mv)","r = mqv/B","r = mB/(qv)"],ans:0,hint:"Magnetic force provides centripetal force: qvB = mv²/r",exp:"The magnetic force provides centripetal force: qvB = mv²/r → r = mv/(qB). This is used in mass spectrometers and particle accelerators.",formula:"r = mv/(qB)",type:"Magnetic"},
-  {q:"Escape velocity from Earth's surface is approximately:",opts:["11.2 km/s","7.9 km/s","1.67 km/s","29.8 km/s"],ans:0,hint:"v_esc = √(2GM/R)",exp:"v_esc = √(2GM/R) = √(2 × 6.67×10⁻¹¹ × 6×10²⁴ / 6.4×10⁶) ≈ 11.2 km/s. Note: orbital velocity ≈ 7.9 km/s.",formula:"v_escape = √(2GM/R)",type:"Gravitational"},
-  {q:"The electric potential at distance r from a point charge Q is:",opts:["V = kQ/r","V = kQ/r²","V = kQr","V = Q/(kr)"],ans:0,hint:"Potential ≠ Field strength; note different r dependence",exp:"Electric potential V = kQ/r = Q/(4πε₀r). Note: E = kQ/r² (inverse square), but V = kQ/r (inverse). V is a scalar; E is a vector.",formula:"V = kQ/r = Q/(4πε₀r)",type:"Electric"},
-  {q:"Kepler's Third Law relates orbital period T and radius r by:",opts:["T² ∝ r³","T ∝ r²","T³ ∝ r²","T ∝ r^(3/2)"],ans:0,hint:"T² ∝ r³ follows from equating gravitational force to centripetal force",exp:"From GMm/r² = mv²/r = m(2πr/T)²/r → T² = 4π²r³/GM → T² ∝ r³. This is Kepler's Third Law.",formula:"T² = 4π²r³/GM, T² ∝ r³",type:"Gravitational"},
-  {q:"An electric field line represents:",opts:["The direction of force on a positive test charge","The path of an electron","Equipotential lines","Maximum field strength regions"],ans:0,hint:"Field lines show direction of force on positive charges",exp:"Electric field lines represent the direction of force on a positive test charge placed in the field. They go from positive to negative charges. Closer lines = stronger field.",formula:"E = F/Q (force per unit charge)",type:"Electric"},
-  {q:"The force between two parallel wires carrying currents I₁ and I₂ separated by distance d is (per unit length):",opts:["F/L = μ₀I₁I₂/(2πd)","F/L = μ₀I₁I₂/(4πd²)","F/L = μ₀I₁I₂d/2π","F/L = I₁I₂/(2πd)"],ans:0,hint:"Related to Ampere's definition",exp:"F/L = μ₀I₁I₂/(2πd). Parallel currents in the same direction attract; opposite directions repel. This was historically used to define the Ampere.",formula:"F/L = μ₀I₁I₂/(2πd)",type:"Magnetic"},
-  {q:"The Hall voltage in a semiconductor with current I, field B, carrier density n, and thickness d is:",opts:["V_H = IB/(nqd)","V_H = IBnd/q","V_H = nqd/(IB)","V_H = IB/(nd)"],ans:0,hint:"Hall effect: magnetic force separates charges until electric force balances",exp:"V_H = IB/(nqd). The Hall effect occurs when a magnetic field deflects moving charges, creating a transverse potential difference. Used to measure B field and carrier type/density.",formula:"V_H = IB/(nqd)",type:"Magnetic"},
-  {q:"Gravitational field strength at Earth's surface equals:",opts:["GM/R²","GM/R","√(GM/R)","2GM/R²"],ans:0,hint:"g = F/m = GM_Earth/R²",exp:"g = GM/R² = (6.67×10⁻¹¹ × 6×10²⁴)/(6.4×10⁶)² ≈ 9.8 N/kg. This is the gravitational field strength (also the acceleration due to gravity).",formula:"g = GM/R²",type:"Gravitational"}
+
+// ================================================================
+// RUMUSAN
+// ================================================================
+rumusan:[
+  {sk:'Mengenal Pasti Isi Tersurat', type:'Teknik Rumusan',
+   ctx:'Aktiviti gotong-royong memberi banyak faedah kepada masyarakat. Pertama, ia dapat mengeratkan hubungan antara penduduk kampung. Kedua, persekitaran kawasan kediaman menjadi lebih bersih dan indah. Ketiga, amalan bergotong-royong dapat dipupuk dalam kalangan generasi muda.',
+   q:'Apakah ISI TERSURAT yang sesuai untuk rumusan faedah gotong-royong?',
+   opts:['Mengeratkan hubungan + kawasan bersih + pupuk amalan pada generasi muda','Gotong-royong adalah aktiviti yang baik','Masyarakat perlu bergotong-royong','Faedah gotong-royong amat banyak'],ans:0,
+   hint:'Isi tersurat = poin yang jelas dinyatakan dalam teks, bukan ulangan umum',
+   exp:'Isi tersurat mestilah poin yang JELAS DINYATAKAN dalam petikan. Tiga isi tersurat ialah: (1) mengeratkan hubungan, (2) kawasan bersih, (3) pupuk amalan gotong-royong. Elak ayat umum/kabur.',
+   note:'Isi tersurat: poin spesifik dari teks; bukan tafsiran/pendapat sendiri'},
+
+  {sk:'Elak Huraian Lebihan', type:'Teknik Rumusan',
+   q:'Manakah yang PALING SESUAI sebagai ayat isi dalam rumusan?',
+   opts:['Gotong-royong mengeratkan hubungan penduduk.','Gotong-royong sangat baik kerana ia mengeratkan hubungan penduduk dan ini akan menjadikan mereka lebih rapat dan saling memahami antara satu sama lain sehingga terjalin persaudaraan yang kukuh.','Masyarakat harus bergotong-royong.','Faedah gotong-royong amat banyak.'],ans:0,
+   hint:'Rumusan: padat dan tepat — elak huraian panjang',
+   exp:'Rumusan memerlukan ayat yang ringkas tetapi lengkap. Pilihan A adalah tepat: satu poin dalam satu ayat yang jelas. Pilihan B terlalu panjang dan mengandungi huraian lebihan.',
+   note:'Rumusan: 1 isi = 1 ayat ringkas; elak huraian panjang'},
+
+  {sk:'Penggunaan Bahasa Sendiri', type:'Teknik Rumusan',
+   q:'Dalam menulis rumusan, penggunaan bahasa sendiri bermaksud:',
+   opts:['Tulis semula isi dengan perkataan berbeza tanpa mengubah makna','Tulis semula teks asal sepenuhnya','Terjemahkan ke bahasa lain','Tambah pendapat peribadi'],ans:0,
+   hint:'Bahasa sendiri ≠ salin semula; tetapi ≠ ubah makna',
+   exp:'Bahasa sendiri bermaksud menyatakan semula isi teks menggunakan perkataan yang berbeza tetapi makna kekal sama. Elak menyalin ayat terus dari teks. Ini menunjukkan kefahaman anda.',
+   note:'Bahasa sendiri: sinonim/parafrasa — makna sama, perkataan berbeza'},
+
+  {sk:'Had Perkataan', type:'Teknik Rumusan',
+   q:'Berapa panjang biasanya jawapan rumusan untuk peperiksaan O Level BM?',
+   opts:['80-100 patah perkataan','200-300 patah perkataan','30-40 patah perkataan','Tiada had'],ans:0,
+   hint:'Rumusan mestilah ringkas — perhatikan arahan soalan',
+   exp:'Rumusan O Level biasanya memerlukan jawapan 80-100 patah perkataan (bergantung arahan soalan). Penting untuk: (1) ikut had perkataan, (2) masukkan semua isi penting, (3) tulis dalam bentuk perenggan.',
+   note:'Ikut arahan had perkataan; tulis dalam perenggan bukan poin'},
+
+  {sk:'Ayat Gramatis dalam Rumusan', type:'Teknik Rumusan',
+   q:'Manakah ayat pembuka rumusan yang paling sesuai?',
+   opts:['Petikan ini membincangkan tentang faedah aktiviti gotong-royong kepada masyarakat.','Petikan di atas adalah tentang gotong-royong.','Gotong-royong ada banyak faedah.','Dalam petikan ini, ia ada faedah gotong-royong.'],ans:0,
+   hint:'Ayat pembuka rumusan perlu gramatis, lengkap dan formal',
+   exp:'Ayat pembuka rumusan terbaik: formal, gramatis, nyatakan tajuk/isi pokok. Pilihan A adalah terbaik. Elak: "adalah tentang" (tidak formal), "ada" (percakapan), "ia" tanpa rujukan jelas.',
+   note:'Pembuka rumusan: "Petikan ini membincangkan..." atau "Petikan di atas menerangkan..."'},
 ],
-thermal: [
-  {q:"The internal energy of an ideal gas depends on:",opts:["Temperature only","Pressure only","Volume only","Both pressure and volume"],ans:0,hint:"Ideal gas molecules have no potential energy",exp:"For an ideal gas, internal energy U depends only on temperature (kinetic energy of molecules). There are no intermolecular forces, so no potential energy. U = (3/2)nRT for monatomic ideal gas.",formula:"U = (3/2)NkT = (3/2)nRT",type:"Kinetic Theory"},
-  {q:"One mole of gas at STP occupies approximately:",opts:["22.4 L","1 L","10 L","44.8 L"],ans:0,hint:"Standard conditions: 0°C, 1 atm",exp:"At STP (0°C = 273 K, 1 atm = 101325 Pa), one mole of any ideal gas occupies 22.4 L. This is the molar volume. At RTP (25°C), it's approximately 24 L.",formula:"V = nRT/P → 22.4 L at STP",type:"Ideal Gas"},
-  {q:"Boyle's Law states that for a fixed mass of gas at constant temperature:",opts:["PV = constant","P/V = constant","P + V = constant","PV = nRT"],ans:0,hint:"Boyle's Law: isothermal process",exp:"Boyle's Law: PV = constant (at constant T). So P₁V₁ = P₂V₂. Doubling pressure halves volume. It's a consequence of gas molecules exerting pressure through collisions.",formula:"PV = const (constant T)",type:"Ideal Gas"},
-  {q:"The root mean square speed of gas molecules at temperature T is proportional to:",opts:["√T","T","T²","√(1/T)"],ans:0,hint:"½mv²_rms = (3/2)kT",exp:"From ½mv²_rms = (3/2)kT → v_rms = √(3kT/m) ∝ √T. Doubling temperature (in Kelvin) increases rms speed by factor √2.",formula:"v_rms = √(3kT/m) ∝ √T",type:"Kinetic Theory"},
-  {q:"The first law of thermodynamics states:",opts:["ΔU = Q + W","ΔU = Q - W","Q = W","Q = ΔU"],ans:0,hint:"Energy is conserved: internal energy change = heat in + work done ON system",exp:"ΔU = Q + W (IUPAC convention) or ΔU = Q - W (physics convention) where W is work done BY system. Q is heat INTO system. Energy conservation applied to thermodynamics.",formula:"ΔU = Q + W (Q in, W on system)",type:"Thermodynamics"},
-  {q:"Absolute zero temperature (0 K) corresponds to:",opts:["-273.15°C","0°C","-100°C","273.15°C"],ans:0,hint:"T(K) = T(°C) + 273.15",exp:"Absolute zero = 0 K = -273.15°C. At absolute zero, molecular motion is minimum (zero-point energy remains in quantum mechanics). T(K) = T(°C) + 273.15.",formula:"T/K = T/°C + 273.15",type:"Ideal Gas"},
-  {q:"In an isothermal expansion of an ideal gas, what happens to internal energy?",opts:["Remains constant","Increases","Decreases","Becomes zero"],ans:0,hint:"Isothermal = constant temperature",exp:"For an ideal gas, U depends only on T. In isothermal process (T = constant), ΔU = 0. By first law: Q = -W, so heat absorbed equals work done by gas.",formula:"Isothermal: ΔT=0 → ΔU=0 → Q = W",type:"Thermodynamics"},
-  {q:"The ideal gas equation is:",opts:["pV = nRT","pV = NRT","p = nRT/V","pV = RT"],ans:0,hint:"Combine Boyle's, Charles's and Avogadro's laws",exp:"pV = nRT where p=pressure(Pa), V=volume(m³), n=moles, R=8.31 J/mol/K, T=temperature(K). Alternatively: pV = NkT where N=number of molecules, k=Boltzmann constant.",formula:"pV = nRT, R = 8.314 J/mol/K",type:"Ideal Gas"},
-  {q:"Charles's Law states that for a fixed mass of gas at constant pressure:",opts:["V ∝ T","V ∝ 1/T","V = constant","V/T² = constant"],ans:0,hint:"Charles's Law: isobaric process",exp:"Charles's Law: V/T = constant (at constant pressure). V₁/T₁ = V₂/T₂. T must be in Kelvin! Heating a gas at constant pressure causes it to expand.",formula:"V/T = constant (constant P)",type:"Ideal Gas"},
-  {q:"The average kinetic energy of gas molecules is:",opts:["(3/2)kT","(1/2)mv²","kT","(3/2)RT"],ans:0,hint:"Relates temperature to microscopic kinetic energy",exp:"Average KE = (3/2)kT where k = 1.38×10⁻²³ J/K (Boltzmann constant). This is for monatomic molecules (3 translational degrees of freedom). T must be in Kelvin.",formula:"<KE> = (3/2)kT",type:"Kinetic Theory"},
-  {q:"Specific heat capacity c is defined as the energy needed to:",opts:["Raise 1 kg of substance by 1 K","Raise any mass by 1 K","Change state of 1 kg","Heat 1 mol by 1 K"],ans:0,hint:"Q = mcΔT",exp:"c = Q/(mΔT). Specific heat capacity is the energy required per kg per kelvin temperature rise. Water has high c = 4200 J/kg/K, making it good for heating systems.",formula:"Q = mcΔT",type:"Thermodynamics"},
-  {q:"Specific latent heat of vaporisation is greater than latent heat of fusion for the same substance because:",opts:["More work needed to overcome intermolecular forces during vaporisation","Gas has more energy than liquid","Evaporation requires less energy","Fusion absorbs more heat"],ans:0,hint:"Consider the separation of molecules in each process",exp:"Vaporisation requires breaking nearly all intermolecular bonds (liquid→gas, large separation). Fusion only partially breaks bonds (solid→liquid, small increase in separation). Much more energy needed for vaporisation.",formula:"Q = mL",type:"Thermodynamics"}
+
+// ================================================================
+// PENULISAN
+// ================================================================
+penulisan:[
+  {sk:'Format Surat Rasmi', type:'Penulisan Berformat',
+   q:'Dalam surat rasmi, bahagian manakah yang MESTI ada tetapi TIDAK perlu dalam surat tidak rasmi?',
+   opts:['Nombor rujukan dan tarikh rasmi','Salam hormat','Tanda tangan','Nama penulis'],ans:0,
+   hint:'Surat rasmi mempunyai format yang lebih ketat',
+   exp:'Surat rasmi memerlukan: (1) nombor rujukan, (2) tarikh rasmi (format penuh), (3) alamat penghantar, (4) alamat penerima, (5) perkara. Surat tidak rasmi lebih bebas formatnya.',
+   note:'Surat rasmi: nombor rujukan + "Perkara:" + format penuh tarikh'},
+
+  {sk:'Format Surat Rasmi', type:'Penulisan Berformat',
+   q:'Bahasa yang betul untuk penutup surat rasmi ialah:',
+   opts:['"Yang benar,"','Yang ikhlas,"','Jumpa lagi,"','Salam sayang,"'],ans:0,
+   hint:'Surat rasmi menggunakan penutup yang formal',
+   exp:'"Yang benar" ialah penutup standard untuk surat rasmi. "Yang ikhlas" boleh digunakan dalam surat separa rasmi. "Jumpa lagi" dan "Salam sayang" hanya sesuai untuk surat tidak rasmi/peribadi.',
+   note:'Rasmi: "Yang benar" / "Yang menurut perintah"; Tidak rasmi: "Yang ikhlas" / "Salam sayang"'},
+
+  {sk:'Penanda Wacana', type:'Penulisan Umum',
+   q:'Penanda wacana yang sesuai untuk memulakan perenggan baru yang meneruskan idea ialah:',
+   opts:['Selain itu, / Tambahan pula,','Sebaliknya, / Walau bagaimanapun,','Kesimpulannya, / Akhir sekali,','Pertama sekali,'],ans:0,
+   hint:'Penanda wacana ada fungsi berbeza: tambah, kontras, simpulan',
+   exp:'"Selain itu" dan "Tambahan pula" digunakan untuk menambah idea yang selari. "Sebaliknya" untuk idea bertentangan. "Kesimpulannya" untuk perenggan penutup. "Pertama sekali" untuk poin pertama.',
+   note:'Tambah: Selain itu/Tambahan pula; Kontras: Sebaliknya; Simpulan: Kesimpulannya'},
+
+  {sk:'Penanda Wacana', type:'Penulisan Umum',
+   q:'Perenggan penutup karangan paling sesuai dimulakan dengan:',
+   opts:['Kesimpulannya,','Pertama sekali,','Selain itu,','Tambahan pula,'],ans:0,
+   hint:'Perenggan penutup merumuskan isi karangan',
+   exp:'"Kesimpulannya" digunakan untuk perenggan penutup yang merumuskan keseluruhan karangan. Penanda wacana penutup lain: "Secara ringkasnya", "Sebagai rumusan", "Akhir kata".',
+   note:'Penutup: Kesimpulannya / Secara ringkasnya / Sebagai rumusan'},
+
+  {sk:'Format Laporan', type:'Penulisan Berformat',
+   q:'Bahagian yang WAJIB ada dalam laporan rasmi ialah:',
+   opts:['Tajuk, Pendahuluan, Isi, Penutup/Cadangan','Tajuk dan tanda tangan sahaja','Pendahuluan dan kesimpulan','Nama pengarang dan tarikh'],ans:0,
+   hint:'Laporan ada struktur khusus yang berbeza dari karangan biasa',
+   exp:'Laporan rasmi mesti ada: (1) Tajuk laporan, (2) Tujuan/Pendahuluan, (3) Kandungan/Isi (pelbagai aspek), (4) Penutup/Cadangan, (5) Nama dan tandatangan. Setiap bahagian ada subjudul.',
+   note:'Laporan: Tajuk + Pendahuluan + Isi (berbilang aspek) + Cadangan/Penutup'},
+
+  {sk:'Variasi Ayat', type:'Penulisan Umum',
+   q:'Antara berikut, manakah menunjukkan VARIASI AYAT yang baik dalam karangan?',
+   opts:['Gabungan ayat panjang, sederhana, dan pendek secara bergilir','Semua ayat pendek dan ringkas','Semua ayat panjang dan kompleks','Ulang struktur ayat yang sama'],ans:0,
+   hint:'Variasi = kepelbagaian; elak monotoni',
+   exp:'Variasi ayat bermaksud menggunakan pelbagai jenis ayat: panjang (kompleks), sederhana, pendek (kesan), ayat aktif dan pasif, ayat tanya retorik, dan pelbagai penanda wacana. Ini menjadikan karangan lebih menarik.',
+   note:'Variasi ayat: panjang + pendek + pelbagai jenis — elak monotoni'},
+
+  {sk:'Peribahasa dalam Karangan', type:'Penulisan Umum',
+   q:'Cara yang paling berkesan menggunakan peribahasa dalam karangan ialah:',
+   opts:['Gunakan dalam konteks yang tepat dan huraikan kaitan dengan isi','Letak peribahasa di permulaan setiap perenggan','Gunakan sebanyak mungkin peribahasa','Salin peribahasa tanpa kaitan dengan isi'],ans:0,
+   hint:'Peribahasa perlu relevan dan dikaitkan dengan isi',
+   exp:'Peribahasa dalam karangan perlu: (1) tepat konteks/isi, (2) dihuraikan kaitannya, (3) tidak keterlaluan (2-3 cukup). Contoh: selepas nulis isi tentang rajin bekerja, tulis "Hal ini sesuai dengan peribahasa \'ringan tulang\' yang bermaksud rajin bekerja."',
+   note:'Peribahasa: guna konteks tepat + hurai kaitan + jangan keterlaluan'},
+
+  {sk:'Karangan Berformat', type:'Penulisan Berformat',
+   q:'Format dialog/skrip drama memerlukan:',
+   opts:['Nama watak diikuti tanda noktah bertindih sebelum dialog','Tanda petik untuk setiap ayat','Nama watak dalam kurungan','Dialog dalam bentuk prosa'],ans:0,
+   hint:'Dialog: Nama watak: "....."',
+   exp:'Format dialog/skrip: NAMA WATAK: "Dialog yang dituturkan." Nama watak ditulis dengan huruf besar/tebal, diikuti tanda noktah bertindih ( : ), kemudian dialog dalam tanda petik.',
+   note:'Dialog: WATAK: "Dialog..." — nama watak + ( : ) + petikan'},
 ],
-quantum: [
-  {q:"The photoelectric effect demonstrates that light consists of:",opts:["Photons (quantised energy packets)","Waves of varying amplitude","Continuous energy spectrum","Electrons"],ans:0,hint:"Einstein's Nobel Prize explanation",exp:"Einstein explained the photoelectric effect by proposing light consists of discrete quanta (photons), each with energy E = hf. This cannot be explained by the wave model alone.",formula:"E = hf",type:"Photoelectric"},
-  {q:"The work function φ of a metal is:",opts:["Minimum energy needed to remove an electron","Maximum KE of emitted electrons","Threshold frequency","Energy of incident photons"],ans:0,hint:"Energy barrier for electrons at surface",exp:"The work function φ is the minimum energy required to release a photoelectron from the metal surface. It depends on the metal. φ = hf₀ where f₀ is the threshold frequency.",formula:"φ = hf₀",type:"Photoelectric"},
-  {q:"Einstein's photoelectric equation is:",opts:["hf = φ + ½mv²_max","hf = ½mv²_max","hf = φ × ½mv²","φ = hf + ½mv²"],ans:0,hint:"Energy in = work done + kinetic energy of electron",exp:"hf = φ + KE_max = φ + ½mv²_max. Photon energy = work function + maximum KE of emitted electrons. If hf < φ, no electrons are emitted regardless of intensity.",formula:"hf = φ + ½mv²_max",type:"Photoelectric"},
-  {q:"The de Broglie wavelength of a particle with momentum p is:",opts:["λ = h/p","λ = hp","λ = h/mv²","λ = p/h"],ans:0,hint:"λ = h/p connects wave and particle properties",exp:"de Broglie: λ = h/p = h/(mv). This wave-particle duality applies to all particles. Electrons can be diffracted (wave behaviour), confirming their wave nature.",formula:"λ = h/p = h/(mv)",type:"De Broglie"},
-  {q:"Radioactive decay follows first order kinetics. The activity A at time t is:",opts:["A = A₀e^(-λt)","A = A₀e^(λt)","A = A₀/t","A = λA₀"],ans:0,hint:"Activity decreases exponentially",exp:"A = A₀e^(-λt) where λ is the decay constant. After one half-life T½, A = A₀/2. T½ = ln2/λ = 0.693/λ.",formula:"A = A₀e^(-λt), T½ = ln2/λ",type:"Radioactivity"},
-  {q:"In beta-minus decay, a neutron changes to:",opts:["Proton + electron + antineutrino","Proton + positron + neutrino","Electron + antineutrino","Proton + electron"],ans:0,hint:"β⁻ decay: ¹n → ¹p + ⁰e + ν̄",exp:"β⁻ decay: n → p + e⁻ + ν̄ₑ (antineutrino). The neutron number decreases by 1, proton number increases by 1. The antineutrino carries away energy and momentum.",formula:"n → p + e⁻ + ν̄_e",type:"Radioactivity"},
-  {q:"Nuclear binding energy is:",opts:["Energy needed to completely separate all nucleons","Energy released in nuclear fusion","Energy of electron orbits","Mass energy of protons"],ans:0,hint:"Related to mass defect",exp:"Binding energy = energy needed to completely separate a nucleus into individual nucleons. EB = Δmc² where Δm is the mass defect. Higher binding energy per nucleon = more stable nucleus.",formula:"E_B = Δmc²",type:"Nuclear"},
-  {q:"In alpha decay, the nucleon number decreases by:",opts:["4","2","1","0"],ans:0,hint:"Alpha particle is ⁴He nucleus",exp:"Alpha particle is ²⁴He (2 protons + 2 neutrons). In α decay: A decreases by 4, Z decreases by 2. Example: ²³⁸U → ²³⁴Th + ⁴He",formula:"α decay: A-4, Z-2",type:"Radioactivity"},
-  {q:"The threshold frequency f₀ for the photoelectric effect satisfies:",opts:["hf₀ = φ","hf₀ = ½mv²","hf₀ = E","f₀ = c/λ"],ans:0,hint:"Threshold: photon energy just equals work function, KE=0",exp:"At threshold frequency, the photon energy just equals the work function: hf₀ = φ. No kinetic energy remains for the emitted electron. If f < f₀, no emission regardless of intensity.",formula:"hf₀ = φ (threshold)",type:"Photoelectric"},
-  {q:"A nucleus undergoes two alpha and one beta-minus decay. The changes in Z and A are:",opts:["Z: -3, A: -8","Z: -4, A: -8","Z: -3, A: -4","Z: -2, A: -8"],ans:0,hint:"α: Z-2,A-4 each; β⁻: Z+1,A unchanged",exp:"Two α decays: Z-4, A-8. One β⁻ decay: Z+1, A unchanged. Net: Z changes by -4+1=-3. A changes by -8+0=-8.",formula:"α: ΔZ=-2,ΔA=-4; β⁻: ΔZ=+1,ΔA=0",type:"Radioactivity"},
-  {q:"Which radiation has the greatest penetrating power?",opts:["Gamma (γ)","Alpha (α)","Beta (β)","X-rays"],ans:0,hint:"Think about interaction with matter",exp:"Gamma rays have the greatest penetrating power (can pass through centimetres of lead). Alpha particles are stopped by a few cm of air or paper. Beta is stopped by a few mm of aluminium.",formula:"Penetrating power: γ > β > α",type:"Radioactivity"}
-],
-optics: [
-  {q:"Snell's Law of refraction states:",opts:["n₁sinθ₁ = n₂sinθ₂","n₁θ₁ = n₂θ₂","sinθ₁/sinθ₂ = v₁/v₂ (incorrect form)","n₁/n₂ = sinθ₁"],ans:0,hint:"Ratio of sines equals ratio of indices",exp:"Snell's Law: n₁sinθ₁ = n₂sinθ₂. When light enters denser medium (higher n), it bends toward normal. All angles measured from normal to surface.",formula:"n₁sinθ₁ = n₂sinθ₂",type:"Refraction"},
-  {q:"Total internal reflection occurs when:",opts:["Angle of incidence exceeds critical angle (in denser medium)","Light travels from less dense to more dense medium","Angle equals 45°","Wavelength changes"],ans:0,hint:"Light must be in denser medium and exceed critical angle",exp:"TIR occurs when: 1) Light travels from denser to less dense medium, and 2) Angle of incidence exceeds critical angle θ_c. sinθ_c = n₂/n₁. Used in optical fibres.",formula:"sinθ_c = n₂/n₁",type:"Refraction"},
-  {q:"The focal length of a converging lens with power +5 dioptres is:",opts:["0.2 m","5 m","0.04 m","20 cm = 0.2 m"],ans:0,hint:"P = 1/f",exp:"Power P = 1/f → f = 1/P = 1/5 = 0.2 m = 20 cm. Converging lenses have positive power; diverging lenses have negative power.",formula:"P = 1/f (dioptres = m⁻¹)",type:"Lenses"},
-  {q:"The lens equation (thin lens formula) is:",opts:["1/v - 1/u = 1/f","1/v + 1/u = 1/f","1/f = 1/u - 1/v","uv = f"],ans:1,hint:"1/f = 1/u + 1/v or 1/f = 1/v - 1/u (depends on sign convention)",exp:"Using real-is-positive convention: 1/v - 1/u = 1/f (u is negative for real object). More commonly written as 1/f = 1/v + 1/u where u is negative. Always check sign convention used.",formula:"1/v - 1/u = 1/f",type:"Lenses"},
-  {q:"In a double-slit interference pattern, the central maximum is bright because:",opts:["Path difference is zero, so waves are in phase","Waves have the same frequency","Amplitude doubles everywhere","Distance from each slit is equal"],ans:0,hint:"Constructive interference: path difference = nλ",exp:"At the central maximum, the path difference from both slits is zero. Both waves arrive exactly in phase and superpose constructively (amplitude doubles, intensity quadruples).",formula:"Path diff = 0 for central maximum",type:"Interference"},
-  {q:"A concave mirror has focal length 20 cm. An object is placed 60 cm away. Where is the image?",opts:["30 cm in front","60 cm behind","40 cm in front","∞"],ans:0,hint:"Mirror equation: 1/v + 1/u = 1/f (real-positive)",exp:"1/v = 1/f - 1/u = 1/20 - 1/60 = 3/60 - 1/60 = 2/60. v = 30 cm in front of mirror (real image).",formula:"1/v + 1/u = 1/f",type:"Lenses"},
-  {q:"The refractive index of a medium equals:",opts:["speed of light in vacuum / speed in medium","speed in medium / speed in vacuum","wavelength in vacuum / wavelength in medium","Both A and C"],ans:3,hint:"Refractive index relates to speed AND wavelength",exp:"n = c/v (speed ratio) AND n = λ₀/λ (wavelength ratio). As light enters denser medium, both speed and wavelength decrease by the same factor n. Frequency stays constant.",formula:"n = c/v = λ₀/λ",type:"Refraction"},
-  {q:"Dispersion of white light by a prism occurs because:",opts:["Different wavelengths have different refractive indices","The prism reflects some colours","White light contains different speeds","All wavelengths bend equally"],ans:0,hint:"Refractive index varies with wavelength",exp:"Refractive index n varies with wavelength (n is larger for shorter wavelengths/blue light). Blue light bends more than red. This separates white light into a spectrum.",formula:"n varies with λ: dispersion",type:"Refraction"},
-  {q:"Coherent light sources must have:",opts:["Same frequency and constant phase difference","Same amplitude only","Same wavelength and random phase","Same intensity"],ans:0,hint:"Coherence is needed for stable interference patterns",exp:"Coherent sources have: same frequency AND constant phase difference (not necessarily zero phase difference). This is needed to produce stable, observable interference patterns.",formula:"Coherence: same f, constant Δφ",type:"Interference"},
-  {q:"The minimum angle resolved by a telescope aperture D at wavelength λ is given by (Rayleigh criterion):",opts:["θ = 1.22λ/D","θ = λ/D","θ = D/λ","θ = 2λ/D"],ans:0,hint:"Rayleigh criterion for resolving power",exp:"Rayleigh criterion: θ_min = 1.22λ/D. Larger aperture D or shorter wavelength λ gives better resolving power (smaller minimum angle). This is why large telescopes are needed to resolve distant stars.",formula:"θ = 1.22λ/D",type:"Diffraction"}
-],
-circular: [
-  {q:"A car of mass 1000 kg travels at 20 m/s around a circular track of radius 100 m. What centripetal force is needed?",opts:["4000 N","200000 N","2000 N","100 N"],ans:0,hint:"F = mv²/r",exp:"F = mv²/r = 1000 × 400/100 = 4000 N. This force must be provided by friction between tyres and road.",formula:"F = mv²/r = mω²r",type:"Centripetal"},
-  {q:"The angular velocity of Earth's rotation is approximately:",opts:["7.27 × 10⁻⁵ rad/s","360 rad/s","1 rad/s","0.0174 rad/s"],ans:0,hint:"ω = 2π/T, T = 24 hours = 86400 s",exp:"ω = 2π/T = 2π/86400 = 7.27 × 10⁻⁵ rad/s. Converting: 1 rev/day = 2π rad / 86400 s.",formula:"ω = 2π/T = 2πf",type:"Centripetal"},
-  {q:"Geostationary satellites have orbital period of:",opts:["24 hours","12 hours","6 hours","Depends on mass"],ans:0,hint:"Geostationary means appears stationary relative to Earth",exp:"Geostationary satellites orbit with T = 24 hours (same as Earth's rotation) above the equator. They appear stationary from Earth's surface. Used for communications and weather.",formula:"T = 24 h = 86400 s",type:"Orbital"},
-  {q:"A satellite orbits at height h above Earth (mass M, radius R). Its orbital speed is:",opts:["v = √(GM/(R+h))","v = √(GMR)","v = √(GM/R)","v = GM/(R+h)²"],ans:0,hint:"Gravitational force = centripetal force",exp:"GMm/r² = mv²/r → v = √(GM/r) where r = R+h. Faster orbital speed at lower orbits (closer to Earth, stronger gravity needed, more speed required).",formula:"v = √(GM/r), r = R+h",type:"Orbital"},
-  {q:"In circular motion, centripetal acceleration is always directed:",opts:["Toward the centre","Away from the centre","Tangentially","Perpendicular to the plane"],ans:0,hint:"Centripetal = centre-seeking",exp:"Centripetal acceleration a = v²/r always points toward the centre. It changes the direction of velocity without changing speed. 'Centripetal' means centre-seeking.",formula:"a = v²/r = ω²r (toward centre)",type:"Centripetal"},
-  {q:"If an asteroid's orbital radius is 4 times that of Earth's, its orbital period is:",opts:["8 years","4 years","16 years","64 years"],ans:0,hint:"Kepler's 3rd Law: T² ∝ r³",exp:"T² ∝ r³. If r' = 4r: T'² = (4r)³/r³ × T² = 64T². T' = 8T = 8 years (Earth's period is 1 year).",formula:"T² ∝ r³ → T'/T = (r'/r)^(3/2)",type:"Orbital"},
-  {q:"An object moves in a circle at constant speed. Its kinetic energy is:",opts:["Constant","Increasing","Decreasing","Zero"],ans:0,hint:"KE depends on speed, which is constant",exp:"Kinetic energy KE = ½mv². In uniform circular motion, speed |v| is constant (only direction changes), so KE is constant. The centripetal force does no work (perpendicular to velocity).",formula:"KE = ½mv² = constant",type:"Centripetal"},
-  {q:"At the top of a circular loop, the minimum speed required so a rollercoaster stays on track is:",opts:["v = √(gr)","v = √(2gr)","v = gr","v = √(g/r)"],ans:0,hint:"At minimum speed, normal force = 0",exp:"At minimum speed, normal force N = 0. Only gravity provides centripetal force: mg = mv²/r → v_min = √(gr). Below this speed, the track would need to push outward (not possible for unpowered track).",formula:"v_min = √(gr) (top of loop)",type:"Centripetal"},
-  {q:"The time period of a satellite depends on:",opts:["Orbital radius and mass of planet","Mass of satellite and planet","Only the orbital radius","Only the orbital speed"],ans:0,hint:"T² = 4π²r³/GM",exp:"From T² = 4π²r³/GM, the period depends on the orbital radius r and the mass M of the central body (planet/star). Notably, it does NOT depend on the satellite's mass.",formula:"T² = 4π²r³/(GM)",type:"Orbital"}
-],
-practical: [
-  {q:"The percentage uncertainty in a measurement of 5.0 cm with an absolute uncertainty of ±0.1 cm is:",opts:["2%","1%","0.2%","5%"],ans:0,hint:"% uncertainty = (absolute uncertainty/value) × 100",exp:"% uncertainty = (0.1/5.0) × 100 = 2%. This is why it's better to make measurements as large as possible (to reduce percentage uncertainty).",formula:"% uncertainty = Δx/x × 100",type:"Uncertainty"},
-  {q:"When two quantities are multiplied, their combined percentage uncertainty is:",opts:["Sum of individual % uncertainties","Difference","Product","Average"],ans:0,hint:"Uncertainties add for multiplication and division",exp:"For y = ab: Δy/y = Δa/a + Δb/b. Percentage uncertainties add for multiplication AND division. For powers: if y = aⁿ, then Δy/y = n × Δa/a.",formula:"%Δ(ab) = %Δa + %Δb",type:"Uncertainty"},
-  {q:"A straight-line graph of y against x has equation y = mx + c. In an experiment, you want to find the constant k from T = 2π√(L/k). You should plot:",opts:["T² against L","T against L","T against √L","T² against √L"],ans:0,hint:"Linearise the equation",exp:"T = 2π√(L/k) → T² = 4π²L/k. Plotting T² vs L gives a straight line through origin with gradient 4π²/k. From gradient, k = 4π²/gradient.",formula:"T² = (4π²/k)L → straight line",type:"Graphs"},
-  {q:"Random errors in an experiment can be reduced by:",opts:["Taking repeated measurements and averaging","Calibrating equipment","Using more precise instruments","Eliminating systematic errors"],ans:0,hint:"Random errors scatter above and below the true value",exp:"Random errors cause scatter around the true value and can be reduced by repeating measurements. The mean of many measurements has uncertainty reduced by factor √n. Systematic errors cannot be reduced by repeating.",formula:"Uncertainty in mean = σ/√n",type:"Uncertainty"},
-  {q:"The intercept of a y vs x graph tells you:",opts:["The value of y when x = 0","The gradient","The maximum value","The uncertainty"],ans:0,hint:"y-intercept is where the line crosses the y-axis",exp:"The y-intercept (c in y = mx + c) gives the value of y when x = 0. It often corresponds to a constant in a physical relationship (e.g., background count in radioactivity).",formula:"y = mx + c: c is y-intercept",type:"Graphs"},
-  {q:"Systematic errors cause measurements to be:",opts:["All too high or all too low by the same amount","Randomly scattered","Occasionally wrong","More uncertain"],ans:0,hint:"Systematic = same direction always",exp:"Systematic errors cause all measurements to deviate in the same direction by a consistent amount (e.g., zero error on balance, incorrect calibration). They cannot be reduced by repeating measurements.",formula:"Systematic: consistent bias",type:"Uncertainty"},
-  {q:"When drawing error bars on a graph, the error bar length represents:",opts:["The absolute uncertainty in the measurement","The range of all measurements","The percentage uncertainty","Standard deviation"],ans:0,hint:"Error bars show uncertainty visually",exp:"Error bars on a graph represent the absolute uncertainty in each data point. Length = 2 × absolute uncertainty (±uncertainty). The best-fit line should pass through all error bars.",formula:"Error bar = ±absolute uncertainty",type:"Uncertainty"},
-  {q:"The resolution of a measuring instrument is:",opts:["The smallest difference it can measure","Its absolute uncertainty","Half the smallest division","Its precision"],ans:0,hint:"Resolution is about the smallest readable difference",exp:"Resolution = smallest difference measurable. For a ruler with 1 mm divisions, resolution = 1 mm. The absolute uncertainty is typically ± half the resolution = ±0.5 mm.",formula:"Uncertainty ≈ ± (resolution/2)",type:"Uncertainty"},
-  {q:"When finding the gradient of a straight-line graph, you should:",opts:["Use a large triangle using points on the best fit line","Use experimental data points","Use the y-intercept","Draw tangents"],ans:0,hint:"Large triangle reduces error in gradient calculation",exp:"Use a large triangle drawn on the line of best fit (NOT passing through data points). Using data points introduces the measurement errors into the gradient calculation.",formula:"gradient = Δy/Δx (large triangle)",type:"Graphs"},
-  {q:"A micrometer screw gauge reading shows 7.50 mm with an uncertainty of ±0.01 mm. The reading is:",opts:["7.50 ± 0.01 mm","7.5 ± 0.01 mm","7.50 ± 0.1 mm","7.5 mm"],ans:0,hint:"Precision: write all significant figures including zeros",exp:"Write 7.50 mm (not 7.5 mm) to show the precision to 0.01 mm. The trailing zero is significant. Uncertainty = ±0.01 mm.",formula:"Reading: (7.50 ± 0.01) mm",type:"Uncertainty"}
-],
-modern: [
-  {q:"The Standard Model of particle physics classifies fundamental particles into:",opts:["Quarks, leptons, and gauge bosons","Protons, neutrons, and electrons","Hadrons and leptons only","Baryons and mesons"],ans:0,hint:"The Standard Model has three groups",exp:"The Standard Model classifies particles as: quarks (6 types), leptons (6 types, including electrons and neutrinos), and gauge bosons (force carriers: photon, W, Z, gluons). The Higgs boson gives mass.",formula:"Quarks + Leptons + Gauge bosons",type:"Particle Physics"},
-  {q:"A proton consists of:",opts:["Two up quarks and one down quark (uud)","Two down quarks and one up quark (udd)","Three up quarks","One up and one down"],ans:0,hint:"Proton charge = +1e: calculate from quark charges",exp:"Proton = uud. Up quark has charge +2/3e, down quark -1/3e. Total: +2/3+2/3-1/3 = +1e ✓. Neutron = udd: +2/3-1/3-1/3 = 0 ✓.",formula:"p = uud: charge = 2(+⅔) + (-⅓) = +1",type:"Particle Physics"},
-  {q:"In Einstein's special relativity, the speed of light in vacuum:",opts:["Is the same for all inertial observers","Depends on the observer's velocity","Adds to the source's velocity","Is c/n in vacuum"],ans:0,hint:"The second postulate of special relativity",exp:"Second postulate: c is constant (≈3×10⁸ m/s) for ALL inertial observers, regardless of motion of source or observer. This leads to time dilation and length contraction.",formula:"c = 3 × 10⁸ m/s (constant)",type:"Relativity"},
-  {q:"Time dilation: a clock moving at velocity v relative to observer runs:",opts:["Slower by factor γ = 1/√(1-v²/c²)","Faster by factor γ","At the same rate","Slower by v/c"],ans:0,hint:"Moving clocks run slow: t = γt₀",exp:"Time dilation: t = γt₀ where γ = 1/√(1-v²/c²) ≥ 1. Moving clocks run SLOWER (t > t₀). As v→c, t→∞. This is confirmed by muon decay experiments.",formula:"t = γt₀, γ = 1/√(1-v²/c²)",type:"Relativity"},
-  {q:"The antiparticle of the electron is the:",opts:["Positron","Antiproton","Antineutrino","Muon"],ans:0,hint:"Same mass, opposite charge",exp:"The positron (e⁺) is the antiparticle of the electron: same mass (0.511 MeV/c²), opposite charge (+e). Predicted by Dirac (1928), discovered by Anderson (1932). Meets electron → annihilation.",formula:"e⁻ + e⁺ → 2γ (annihilation)",type:"Particle Physics"},
-  {q:"In pair production, a gamma photon produces:",opts:["Electron-positron pair","Proton-antiproton pair","Two electrons","Electron and proton"],ans:0,hint:"Energy → mass (E = mc²), charge must be conserved",exp:"γ → e⁻ + e⁺ (pair production). Minimum energy required = 2m_e c² = 2 × 0.511 = 1.022 MeV. A nucleus is usually nearby to conserve momentum.",formula:"γ → e⁻ + e⁺ (min: 2m_ec²)",type:"Particle Physics"},
-  {q:"Mass-energy equivalence is given by:",opts:["E = mc²","E = ½mc²","E = mc","E = m/c²"],ans:0,hint:"Einstein's most famous equation",exp:"E = mc² relates mass m to energy E. c = 3×10⁸ m/s. Total energy includes rest energy (mc²) + kinetic energy. Mass can be converted to energy and vice versa.",formula:"E = mc², E_rest = m₀c²",type:"Relativity"},
-  {q:"Quarks are never found in isolation because of:",opts:["Quark confinement","Heisenberg uncertainty","Too small mass","Electric charge repulsion"],ans:0,hint:"Property of the strong nuclear force",exp:"Quark confinement: the strong force (mediated by gluons) increases with distance between quarks. This prevents quarks from being separated; energy input creates new quark-antiquark pairs instead.",formula:"Strong force: gluon exchange",type:"Particle Physics"}
-]
 };
-
-// Extend each topic with more questions to get closer to 100
-// Add more varied question types for richer experience
-const EXTRA_QB = {
-mechanics: [
-  {q:"A 4 kg object moves from 5 m/s to 15 m/s. The work done on it is:",opts:["400 J","200 J","40 J","800 J"],ans:0,hint:"Work-energy theorem: W = ΔKE",exp:"ΔKE = ½(4)(15² - 5²) = 2(225-25) = 2×200 = 400 J. Work-energy theorem: net work = change in KE.",formula:"W = ΔKE = ½m(v²-u²)",type:"Energy"},
-  {q:"The turning moment (torque) of a 20 N force at 0.4 m from pivot is:",opts:["8 N·m","50 N·m","0.02 N·m","80 N·m"],ans:0,hint:"Torque = Force × perpendicular distance",exp:"τ = Fd = 20 × 0.4 = 8 N·m. Torque (moment) = force × perpendicular distance from pivot. Unit: N·m.",formula:"τ = Fd",type:"Newton's Laws"},
-  {q:"Terminal velocity occurs when:",opts:["Drag force equals driving/weight force","Acceleration is maximum","Speed is zero","Net force is maximum"],ans:0,hint:"Terminal = no more acceleration",exp:"Terminal velocity: when drag force equals the driving force (or weight for free fall), net force = 0, so acceleration = 0. Object moves at constant (terminal) velocity.",formula:"F_drag = W at terminal velocity",type:"Newton's Laws"},
-  {q:"Which statement about forces in equilibrium is correct?",opts:["Resultant force is zero AND resultant torque is zero","Only resultant force is zero","Only torques must balance","Object must be stationary"],ans:0,hint:"Two conditions for equilibrium",exp:"For complete equilibrium: (1) ΣF = 0 (translational) AND (2) Στ = 0 (rotational). Both conditions must be satisfied. An object moving at constant velocity satisfies condition 1.",formula:"ΣF = 0 and Στ = 0",type:"Newton's Laws"}
-],
-electricity: [
-  {q:"For an ohmic resistor, doubling the voltage across it will:",opts:["Double the current","Halve the current","Quadruple the current","Not change the current"],ans:0,hint:"Ohm's Law: V = IR",exp:"V = IR (Ohm's Law). At constant R, doubling V doubles I. An ohmic resistor has constant resistance, so I ∝ V.",formula:"V = IR: doubling V doubles I",type:"Ohm's Law"},
-  {q:"A coulomb of charge passes a point every 4 seconds. The current is:",opts:["0.25 A","4 A","1 A","0.4 A"],ans:0,hint:"I = Q/t",exp:"I = Q/t = 1/4 = 0.25 A. Current is the rate of flow of charge. 1 A = 1 C/s.",formula:"I = Q/t",type:"Circuits"}
-]
-};
-
-// Merge extra questions
-Object.keys(EXTRA_QB).forEach(topic => {
-  if (QB[topic]) QB[topic] = QB[topic].concat(EXTRA_QB[topic]);
-});
-
-// Fill all topics to have at least 20 questions by cycling
-Object.keys(QB).forEach(topic => {
-  while (QB[topic].length < 20) {
-    QB[topic].push(...QB[topic].slice(0, Math.min(5, QB[topic].length)));
-  }
-});
 
 // ===================== STATE =====================
-let playerName = '';
-let selectedTopics = [];
-let quizMode = 'practice';
-let currentQuestions = [];
-let currentQIndex = 0;
-let score = 0;
-let streak = 0;
-let timerInterval = null;
-let timeLeft = 0;
-let totalTime = 0;
-let questionStartTime = 0;
-let questionTimes = [];
-let hintUsed = false;
-let sessionResults = [];
-const QUESTIONS_PER_QUIZ = 15;
-const TIME_LIMIT = 120; // seconds per question (A-level standard)
+let pname='', selSkill='', selSubs=[], curQs=[], qIdx=0, score=0, streak=0, correctCount=0;
+let timer=null, tLeft=0, qStart=0, qTimes=[], hintUsed=false;
+const QN=15,TL=75;
 
-// ===================== STORAGE =====================
-function saveProgress(data) {
-  try { localStorage.setItem('physicsAce_progress', JSON.stringify(data)); } catch(e){}
-}
-function loadProgress() {
-  try {
-    const d = localStorage.getItem('physicsAce_progress');
-    return d ? JSON.parse(d) : { sessions:[], topicStats:{}, totalQuestions:0 };
-  } catch(e) { return { sessions:[], topicStats:{}, totalQuestions:0 }; }
-}
-function saveName(n) { try { localStorage.setItem('physicsAce_name', n); } catch(e){} }
-function loadName() { try { return localStorage.getItem('physicsAce_name')||''; } catch(e){return '';} }
+function saveP(d){try{localStorage.setItem('bm_prog',JSON.stringify(d));}catch(e){}}
+function loadP(){try{const d=localStorage.getItem('bm_prog');return d?JSON.parse(d):{sessions:[],skills:{},total:0};}catch(e){return{sessions:[],skills:{},total:0};}}
+function saveName(n){try{localStorage.setItem('bm_name',n);}catch(e){}}
+function loadName(){try{return localStorage.getItem('bm_name')||'';}catch(e){return'';}}
 
-// ===================== NAVIGATION =====================
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); s.style.display='none'; });
-  const el = document.getElementById(id);
-  el.style.display = 'flex';
-  el.classList.add('active');
+function show(id){document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.style.display='none';});const e=document.getElementById(id);e.style.display='flex';e.classList.add('active');}
+
+function startApp(){
+  sfxClick();
+  pname=document.getElementById('nameInput').value.trim()||'Pelajar';
+  saveName(pname);
+  document.getElementById('uname').textContent=pname;
+  buildSkillGrid();
+  show('skillselect');
 }
 
-function startApp() {
-  sfxStart();
-  playerName = document.getElementById('nameInput').value.trim() || 'Student';
-  saveName(playerName);
-  document.getElementById('userName').textContent = playerName;
-  buildTopicGrid();
-  showScreen('topicselect');
-}
-
-function buildTopicGrid() {
-  const prog = loadProgress();
-  const grid = document.getElementById('topicsGrid');
-  grid.innerHTML = '';
-  TOPICS.forEach(t => {
-    const stats = prog.topicStats[t.id] || {attempts:0,correct:0};
-    const pct = stats.attempts > 0 ? Math.round((stats.correct/stats.attempts)*100) : 0;
-    const div = document.createElement('div');
-    div.className = 'topic-card';
-    div.style.setProperty('--topic-color', t.color);
-    div.dataset.id = t.id;
-    div.innerHTML = `
-      <div class="topic-badge">${stats.attempts > 0 ? pct+'%' : 'NEW'}</div>
-      <span class="topic-icon">${t.icon}</span>
-      <div class="topic-name">${t.name}</div>
-      <div class="topic-sub">${t.subs}</div>
-      <div class="topic-progress">
-        <div class="topic-progress-fill" style="width:${pct}%;background:${t.color}"></div>
-      </div>`;
-    div.onclick = () => toggleTopic(t.id, div);
-    grid.appendChild(div);
+function buildSkillGrid(){
+  const p=loadP(),g=document.getElementById('skillsGrid');
+  g.innerHTML='';
+  SKILLS.forEach(s=>{
+    const st=p.skills[s.id]||{a:0,c:0};
+    const pct=st.a>0?Math.round(st.c/st.a*100):0;
+    const d=document.createElement('div');
+    d.className='skill-card';
+    d.style.setProperty('--c',s.color);
+    d.dataset.id=s.id;
+    d.innerHTML=`<div class="sk-count">${st.a>0?pct+'%':'BARU'}</div><span class="sk-icon">${s.icon}</span><div class="sk-name">${s.name}</div><div class="sk-sub">${s.sub}</div>`;
+    d.onclick=()=>selectSkill(s.id,d);
+    g.appendChild(d);
   });
 }
 
-function toggleTopic(id, el) {
+function selectSkill(id,el){
   sfxClick();
-  if (el.classList.contains('selected')) {
-    el.classList.remove('selected');
-    selectedTopics = selectedTopics.filter(t => t !== id);
-  } else {
-    el.classList.add('selected');
-    selectedTopics.push(id);
-  }
-  const btn = document.getElementById('startBtn');
-  if (selectedTopics.length > 0) {
-    btn.disabled = false;
-    btn.textContent = `Start Quiz — ${selectedTopics.length} Topic${selectedTopics.length>1?'s':''} Selected →`;
-  } else {
-    btn.disabled = true;
-    btn.textContent = 'Select a topic to begin →';
-  }
-}
-
-function setMode(el, mode) {
-  sfxClick();
-  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  quizMode = mode;
-}
-
-function showTopicSelect() {
-  sfxClick();
-  selectedTopics = [];
-  buildTopicGrid();
-  document.querySelectorAll('.topic-card').forEach(c => c.classList.remove('selected'));
-  document.getElementById('startBtn').disabled = true;
-  document.getElementById('startBtn').textContent = 'Select a topic to begin →';
-  showScreen('topicselect');
-}
-
-// ===================== QUIZ LOGIC =====================
-function beginQuiz() {
-  sfxStart();
-  if (selectedTopics.length === 0) return;
-  
-  // Gather questions
-  let pool = [];
-  if (quizMode === 'mixed') {
-    Object.keys(QB).forEach(t => pool.push(...QB[t].map(q=>({...q,_topic:t}))));
-  } else {
-    selectedTopics.forEach(t => {
-      if (QB[t]) pool.push(...QB[t].map(q=>({...q,_topic:t})));
-    });
-  }
-  
-  // Shuffle and pick
-  pool = shuffle(pool);
-  currentQuestions = pool.slice(0, QUESTIONS_PER_QUIZ);
-  currentQIndex = 0;
-  score = 0;
-  streak = 0;
-  sessionResults = [];
-  questionTimes = [];
-  totalTime = 0;
-  
-  showScreen('quiz');
-  loadQuestion();
-}
-
-function shuffle(arr) {
-  const a = [...arr];
-  for(let i=a.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [a[i],a[j]]=[a[j],a[i]];
-  }
-  return a;
-}
-
-function loadQuestion() {
-  if (currentQIndex >= currentQuestions.length) { endQuiz(); return; }
-  const q = currentQuestions[currentQIndex];
-  
-  // Reset state
-  hintUsed = false;
-  const fb = document.getElementById('feedbackCard');
-  fb.style.display = 'none';
-  document.getElementById('nextBtn').style.display = 'none';
-  document.getElementById('hintBox').style.display = 'none';
-  document.getElementById('hintBtn').style.display = 'inline-flex';
-  
-  // Update progress
-  const pct = (currentQIndex / currentQuestions.length) * 100;
-  document.getElementById('quizProgressFill').style.width = pct + '%';
-  document.getElementById('qProgressText').textContent = `Q ${currentQIndex+1}/${currentQuestions.length}`;
-  
-  // Topic tag
-  const topicObj = TOPICS.find(t => t.id === (q._topic || selectedTopics[0]));
-  document.getElementById('quizTopicTag').textContent = topicObj ? topicObj.name : 'Physics';
-  document.getElementById('qTypeTag').textContent = q.type || 'Multiple Choice';
-  
-  // Question
-  document.getElementById('questionText').textContent = q.q;
-  document.getElementById('hintBox').textContent = '💡 ' + q.hint;
-  
-  // Shuffle options (keep track of correct answer)
-  const opts = q.opts.map((text,i)=>({text,originalIndex:i}));
-  const shuffledOpts = shuffle(opts);
-  const correctText = q.opts[q.ans];
-  
-  const grid = document.getElementById('optionsGrid');
-  grid.innerHTML = '';
-  const keys = ['A','B','C','D'];
-  shuffledOpts.forEach((opt,i) => {
-    const btn = document.createElement('button');
-    btn.className = 'option-btn';
-    btn.innerHTML = `<span class="option-key">${keys[i]}</span>${opt.text}`;
-    btn.dataset.text = opt.text;
-    btn.onclick = () => selectAnswer(btn, opt.text === correctText, q, grid, correctText);
+  document.querySelectorAll('.skill-card').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  selSkill=id;
+  selSubs=[];
+  // build subtopics
+  const sk=SKILLS.find(s=>s.id===id);
+  const panel=document.getElementById('stPanel'),grid=document.getElementById('stGrid');
+  grid.innerHTML='';
+  sk.subtopics.forEach(st=>{
+    const btn=document.createElement('button');
+    btn.className='st-chip';btn.textContent=st;
+    btn.onclick=()=>{sfxClick();btn.classList.toggle('active');if(btn.classList.contains('active'))selSubs.push(st);else selSubs=selSubs.filter(x=>x!==st);};
     grid.appendChild(btn);
   });
-  
-  // Start timer
+  panel.classList.add('open');
+  const sBtn=document.getElementById('startBtn');
+  sBtn.disabled=false;
+  sBtn.textContent=`Mulakan Kuiz — ${sk.name} →`;
+}
+
+function beginQuiz(){
+  sfxClick();
+  if(!selSkill)return;
+  let pool=(QB[selSkill]||[]).map(q=>({...q}));
+  if(selSubs.length>0)pool=pool.filter(q=>selSubs.includes(q.sk));
+  if(pool.length===0)pool=(QB[selSkill]||[]).map(q=>({...q}));
+  pool=shuffle(pool);
+  curQs=pool.slice(0,Math.min(QN,pool.length));
+  qIdx=0;score=0;streak=0;correctCount=0;qTimes=[];
+  show('quiz');
+  loadQ();
+}
+
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+
+function loadQ(){
+  if(qIdx>=curQs.length){endQuiz();return;}
+  const q=curQs[qIdx];
+  hintUsed=false;
+  document.getElementById('fbEl').style.display='none';
+  document.getElementById('nextBtn').style.display='none';
+  document.getElementById('hintBox').style.display='none';
+  document.getElementById('hintBtn').style.display='inline-flex';
+
+  const pct=(qIdx/curQs.length)*100;
+  document.getElementById('qPfill').style.width=pct+'%';
+  document.getElementById('qNum').textContent=`S ${qIdx+1}/${curQs.length}`;
+
+  const sk=SKILLS.find(s=>s.id===selSkill);
+  document.getElementById('qTag').textContent=sk?sk.name:'BM';
+  document.getElementById('qTypeEl').textContent=q.type||'Aneka Pilihan';
+
+  // context
+  const ctx=document.getElementById('qCtx');
+  if(q.ctx){ctx.innerHTML=q.ctx;ctx.style.display='block';}
+  else ctx.style.display='none';
+
+  document.getElementById('qText').innerHTML=q.q;
+  document.getElementById('hintBox').textContent='💡 '+q.hint;
+
+  // shuffle options
+  const opts=q.opts.map((t,i)=>({t,i}));
+  const shuf=shuffle(opts);
+  const corrText=q.opts[q.ans];
+
+  const grid=document.getElementById('optsEl');
+  grid.innerHTML='';
+  const keys=['A','B','C','D','E'];
+  shuf.forEach((opt,i)=>{
+    const btn=document.createElement('button');
+    btn.className='opt';
+    btn.innerHTML=`<span class="opt-key">${keys[i]}</span>${opt.t}`;
+    btn.dataset.t=opt.t;
+    btn.onclick=()=>selectAns(btn,opt.t===corrText,q,grid,corrText);
+    grid.appendChild(btn);
+  });
+
   startTimer();
-  questionStartTime = Date.now();
-  
-  // Animate card
-  const card = document.getElementById('questionCard');
-  card.classList.remove('bounce');
-  void card.offsetWidth;
-  card.classList.add('bounce');
+  qStart=Date.now();
+  const card=document.getElementById('qCard');
+  card.style.animation='none';void card.offsetWidth;card.style.animation='fadeUp 0.4s ease';
 }
 
-function startTimer() {
-  clearInterval(timerInterval);
-  timeLeft = TIME_LIMIT;
-  updateTimerDisplay();
-  
-  timerInterval = setInterval(() => {
-    timeLeft--;
-    updateTimerDisplay();
-    if (timeLeft <= 20 && timeLeft > 0 && timeLeft % 5 === 0) sfxTimerWarn();
-    if (timeLeft <= 0) {
-      clearInterval(timerInterval);
-      timeOut();
-    }
-  }, 1000);
+function startTimer(){
+  clearInterval(timer);
+  tLeft=TL;
+  updTimer();
+  timer=setInterval(()=>{
+    tLeft--;updTimer();
+    if(tLeft<=10&&tLeft>0&&tLeft%3===0)sfxNext();
+    if(tLeft<=0){clearInterval(timer);timeOut();}
+  },1000);
 }
-
-function updateTimerDisplay() {
-  const el = document.getElementById('timerText');
-  const circle = document.getElementById('timerCircle');
-  const circumference = 188.5;
-  const fraction = timeLeft / TIME_LIMIT;
-  
-  el.textContent = timeLeft;
-  circle.style.strokeDashoffset = circumference * (1 - fraction);
-  
-  if (timeLeft <= 10) {
-    circle.style.stroke = '#FF3B6B';
-    el.style.color = '#FF3B6B';
-  } else if (timeLeft <= 30) {
-    circle.style.stroke = '#FFD700';
-    el.style.color = '#FFD700';
-  } else {
-    circle.style.stroke = 'var(--accent)';
-    el.style.color = 'var(--text)';
-  }
+function updTimer(){
+  const el=document.getElementById('timerEl');
+  el.textContent=(tLeft<=10?'⏱ ':'⏱ ')+tLeft;
+  el.className='timer'+(tLeft<=10?' warn':'');
 }
-
-function timeOut() {
+function timeOut(){
   sfxWrong();
-  const q = currentQuestions[currentQIndex];
-  const grid = document.getElementById('optionsGrid');
-  const correctText = q.opts[q.ans];
-  
-  // Disable all and show correct
-  grid.querySelectorAll('.option-btn').forEach(btn => {
-    btn.disabled = true;
-    if (btn.dataset.text === correctText) btn.classList.add('reveal');
-  });
-  
-  streak = 0;
-  recordQuestion(false, TIME_LIMIT);
-  showFeedback(false, q, '⏰ Time\'s up!');
+  const q=curQs[qIdx];
+  const corrText=q.opts[q.ans];
+  document.getElementById('optsEl').querySelectorAll('.opt').forEach(b=>{b.disabled=true;if(b.dataset.t===corrText)b.classList.add('reveal');});
+  streak=0;recQ(false,TL);
+  showFB(false,q,'⏰ Masa Tamat!');
 }
 
-function selectAnswer(btn, isCorrect, q, grid, correctText) {
-  clearInterval(timerInterval);
-  const timeTaken = Math.round((Date.now() - questionStartTime) / 1000);
-  
-  // Disable all buttons
-  grid.querySelectorAll('.option-btn').forEach(b => { b.disabled = true; b.onclick = null; });
-  
-  if (isCorrect) {
-    btn.classList.add('correct');
-    sfxCorrect();
-    streak++;
-    score += hintUsed ? 8 : 10;
-    score += Math.max(0, Math.floor(timeLeft / 10)); // bonus for speed
-  } else {
-    btn.classList.add('wrong');
-    sfxWrong();
-    streak = 0;
-    // Show correct answer
-    grid.querySelectorAll('.option-btn').forEach(b => {
-      if (b.dataset.text === correctText) b.classList.add('correct');
-    });
-    document.getElementById('questionCard').classList.add('shake');
-    setTimeout(() => document.getElementById('questionCard').classList.remove('shake'), 500);
+function selectAns(btn,ok,q,grid,corrText){
+  clearInterval(timer);
+  const t=Math.round((Date.now()-qStart)/1000);
+  grid.querySelectorAll('.opt').forEach(b=>{b.disabled=true;b.onclick=null;});
+  if(ok){
+    btn.classList.add('correct');sfxOk();streak++;correctCount++;
+    score+=hintUsed?8:10;score+=Math.max(0,Math.floor(tLeft/12));
+  }else{
+    btn.classList.add('wrong');sfxWrong();streak=0;
+    grid.querySelectorAll('.opt').forEach(b=>{if(b.dataset.t===corrText)b.classList.add('correct');});
+    document.getElementById('qCard').classList.add('shake');
+    setTimeout(()=>document.getElementById('qCard').classList.remove('shake'),400);
   }
-  
-  document.getElementById('streakBadge').textContent = '🔥 ' + streak;
-  document.getElementById('liveScore').textContent = score + ' pts';
-  
-  recordQuestion(isCorrect, timeTaken);
-  showFeedback(isCorrect, q);
+  document.getElementById('streakEl').textContent='🔥 '+streak;
+  document.getElementById('ptsEl').textContent=score+' mata';
+  recQ(ok,t);showFB(ok,q);
 }
 
-function recordQuestion(isCorrect, timeTaken) {
-  questionTimes.push(timeTaken);
-  totalTime += timeTaken;
-  const q = currentQuestions[currentQIndex];
-  sessionResults.push({ isCorrect, timeTaken, topic: q._topic, q: q.q });
-  
-  // Update localStorage stats
-  const prog = loadProgress();
-  const t = q._topic || 'general';
-  if (!prog.topicStats[t]) prog.topicStats[t] = { attempts:0, correct:0, totalTime:0 };
-  prog.topicStats[t].attempts++;
-  if (isCorrect) prog.topicStats[t].correct++;
-  prog.topicStats[t].totalTime = (prog.topicStats[t].totalTime || 0) + timeTaken;
-  prog.totalQuestions = (prog.totalQuestions || 0) + 1;
-  saveProgress(prog);
+function recQ(ok,t){
+  qTimes.push(t);
+  const q=curQs[qIdx];
+  const p=loadP();
+  if(!p.skills[selSkill])p.skills[selSkill]={a:0,c:0};
+  p.skills[selSkill].a++;if(ok)p.skills[selSkill].c++;
+  p.total=(p.total||0)+1;
+  saveP(p);
 }
 
-function showFeedback(isCorrect, q, title) {
-  const fb = document.getElementById('feedbackCard');
-  const icon = document.getElementById('fbIcon');
-  const fbTitle = document.getElementById('fbTitle');
-  const fbExp = document.getElementById('fbExplanation');
-  const fbForm = document.getElementById('fbFormula');
-  
-  fb.className = 'feedback-card ' + (isCorrect ? 'correct-fb' : 'wrong-fb');
-  icon.textContent = isCorrect ? '✅' : '❌';
-  fbTitle.textContent = title || (isCorrect ? getCorrectMessage() : getWrongMessage());
-  fbExp.textContent = q.exp;
-  
-  if (q.formula) {
-    fbForm.textContent = '📐 Formula: ' + q.formula;
-    fbForm.style.display = 'block';
-  } else {
-    fbForm.style.display = 'none';
-  }
-  
-  fb.style.display = 'block';
-  document.getElementById('nextBtn').style.display = 'inline-block';
-  
-  // Auto advance in exam mode
-  if (quizMode === 'exam') {
-    setTimeout(() => nextQuestion(), 3000);
-  }
+function showFB(ok,q,title){
+  const fb=document.getElementById('fbEl');
+  fb.className='fb '+(ok?'ok':'bad');
+  document.getElementById('fbIcon').textContent=ok?'✅':'❌';
+  document.getElementById('fbTitle').textContent=title||(ok?getOkMsg():getBadMsg());
+  document.getElementById('fbExp').innerHTML=q.exp;
+  const note=document.getElementById('fbNote');
+  if(q.note){note.textContent='📌 '+q.note;note.style.display='block';}
+  else note.style.display='none';
+  fb.style.display='block';
+  document.getElementById('nextBtn').style.display='inline-block';
 }
 
-function getCorrectMessage() {
-  const msgs = ['Excellent! 🎓', 'Perfect! 🌟', 'Brilliant! ⚡', 'Outstanding! 🏆', 'Spot on! 🎯', 'Nailed it! 💥', 'Grade A thinking! 🔥'];
-  return msgs[Math.floor(Math.random()*msgs.length)];
-}
-function getWrongMessage() {
-  const msgs = ['Not quite — but now you know! 💪', 'Good attempt! Study this one 📖', 'Nearly! Keep going 🚀', 'Learn from this one! 🔬'];
-  return msgs[Math.floor(Math.random()*msgs.length)];
+function getOkMsg(){const m=['Betul! 🌟','Tepat sekali! 🎯','Bagus! 💪','Cemerlang! 🏆','Pandai! ⚡'];return m[Math.floor(Math.random()*m.length)];}
+function getBadMsg(){const m=['Hampir! Cuba lagi 💡','Tak mengapa — belajar dari ini! 📖','Teruskan usaha! 🚀','Tinjau semula nota! 📝'];return m[Math.floor(Math.random()*m.length)];}
+
+function showHint(){sfxClick();hintUsed=true;document.getElementById('hintBox').style.display='block';document.getElementById('hintBtn').style.display='none';}
+function nextQ(){sfxNext();qIdx++;loadQ();}
+
+function endQuiz(){
+  clearInterval(timer);sfxDone();
+  const total=curQs.length, correct=correctCount, pct=Math.round(correct/total*100);
+  const avgT=qTimes.length?Math.round(qTimes.reduce((a,b)=>a+b,0)/qTimes.length):0;
+  const grade=pct>=90?'A*':pct>=80?'A':pct>=70?'B':pct>=55?'C':'D';
+  const gc={A:'gA','A*':'gA',B:'gB',C:'gC',D:'gD'};
+
+  const p=loadP();
+  if(!p.sessions)p.sessions=[];
+  const sk=SKILLS.find(s=>s.id===selSkill);
+  p.sessions.unshift({date:new Date().toLocaleDateString('ms-MY'),time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),skill:sk?sk.name:selSkill,score:correct,total,pct,grade,avgT});
+  if(p.sessions.length>40)p.sessions=p.sessions.slice(0,40);
+  saveP(p);
+
+  const r=document.getElementById('gradeRing');
+  r.textContent=grade;r.className='grade-ring '+(gc[grade]||'gF');
+  document.getElementById('rsScore').textContent=correct+'/'+total;
+  document.getElementById('rsPct').textContent=pct+'%';
+  document.getElementById('rsTime').textContent=avgT+'s';
+  document.getElementById('resTitle').textContent=pct>=80?'Cemerlang! 🏆':pct>=60?'Bagus! Teruskan! 💪':'Perlu Lebih Usaha! 📚';
+  document.getElementById('resSub').textContent=pct>=80?'Anda menguasai topik ini!':'Ulang kaji bahagian yang lemah ya.';
+  show('results');
 }
 
-function showHint() {
+function retryQuiz(){sfxClick();qIdx=0;score=0;streak=0;correctCount=0;qTimes=[];curQs=shuffle(curQs);show('quiz');loadQ();}
+function backToSelect(){sfxClick();selSkill='';selSubs=[];buildSkillGrid();document.getElementById('stPanel').classList.remove('open');document.getElementById('startBtn').disabled=true;document.getElementById('startBtn').textContent='Pilih kemahiran untuk bermula →';show('skillselect');}
+
+function showProgress(){
   sfxClick();
-  hintUsed = true;
-  document.getElementById('hintBox').style.display = 'block';
-  document.getElementById('hintBtn').style.display = 'none';
-}
+  const p=loadP();
+  document.getElementById('progName').textContent=pname+"'s Dashboard";
+  const total=p.total||0;
+  let tc=0;Object.values(p.skills||{}).forEach(s=>tc+=s.c||0);
+  const ov=total>0?Math.round(tc/total*100):0;
+  document.getElementById('overallBar').style.width=ov+'%';
+  document.getElementById('ovText').textContent=ov+'% tepat';
+  document.getElementById('ovQ').textContent=total+' soalan dijawab';
 
-function nextQuestion() {
-  sfxNext();
-  currentQIndex++;
-  loadQuestion();
-}
-
-// ===================== RESULTS =====================
-function endQuiz() {
-  clearInterval(timerInterval);
-  sfxComplete();
-  
-  const total = currentQuestions.length;
-  const correct = sessionResults.filter(r=>r.isCorrect).length;
-  const pct = Math.round((correct/total)*100);
-  const avgTime = Math.round(totalTime/total);
-  const grade = getGrade(pct);
-  
-  // Save session
-  const prog = loadProgress();
-  if (!prog.sessions) prog.sessions = [];
-  prog.sessions.unshift({
-    date: new Date().toLocaleDateString(),
-    time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}),
-    topics: selectedTopics.map(id => TOPICS.find(t=>t.id===id)?.name || id).join(', '),
-    score: correct,
-    total,
-    pct,
-    grade,
-    avgTime,
-    mode: quizMode
+  const grid=document.getElementById('skillPerfGrid');
+  grid.innerHTML='';
+  SKILLS.forEach(sk=>{
+    const s=p.skills[sk.id]||{a:0,c:0};
+    const pct=s.a>0?Math.round(s.c/s.a*100):0;
+    const d=document.createElement('div');d.className='spg';
+    d.innerHTML=`<div class="spg-name">${sk.icon} ${sk.name}</div><div class="spg-info"><span>${s.c||0}/${s.a||0}</span><span style="color:${sk.color}">${pct}%</span></div><div class="spg-bar"><div class="spg-fill" style="width:${pct}%;background:${sk.color}"></div></div>`;
+    grid.appendChild(d);
   });
-  if (prog.sessions.length > 50) prog.sessions = prog.sessions.slice(0,50);
-  saveProgress(prog);
-  
-  // Display
-  const gc = document.getElementById('gradeCircle');
-  gc.textContent = grade;
-  gc.className = 'grade-circle grade-' + grade.charAt(0);
-  
-  document.getElementById('resScore').textContent = correct + '/' + total;
-  document.getElementById('resPercent').textContent = pct + '%';
-  document.getElementById('resTime').textContent = avgTime + 's';
-  document.getElementById('motivational').textContent = getMotivation(pct, grade);
-  document.getElementById('resultsSub').textContent = grade === 'A' || grade === 'A*' ? 
-    '🏆 Excellent work! You\'re on track for Grade A' : 
-    `Keep practising! You need ${80-pct > 0 ? 80-pct : 0}% more for Grade A`;
-  
-  showScreen('results');
-  
-  if (pct >= 80) launchConfetti();
-}
 
-function getGrade(pct) {
-  if (pct >= 90) return 'A*';
-  if (pct >= 80) return 'A';
-  if (pct >= 70) return 'B';
-  if (pct >= 60) return 'C';
-  if (pct >= 50) return 'D';
-  return 'E';
-}
-
-function getMotivation(pct, grade) {
-  if (pct >= 90) return '🌟 Outstanding — Grade A* territory!';
-  if (pct >= 80) return '🏆 Excellent! Solid Grade A performance!';
-  if (pct >= 70) return '📈 Good work! A few more topics to reach Grade A';
-  if (pct >= 60) return '💪 Making progress! Keep reviewing the formulas';
-  if (pct >= 50) return '🔬 Good effort! Focus on the weak topics';
-  return '📚 Keep studying! Every session makes you stronger';
-}
-
-function launchConfetti() {
-  const container = document.getElementById('confettiContainer');
-  const colors = ['#00D4FF','#7B2FFF','#FF6B35','#00FF9F','#FFD700','#FF3B6B'];
-  for (let i=0;i<80;i++) {
-    const p = document.createElement('div');
-    p.className = 'confetti-piece';
-    const size = 6 + Math.random()*10;
-    p.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:${Math.random()>0.5?'50%':'2px'};--dur:${2+Math.random()*2}s;--delay:${Math.random()*1.5}s;`;
-    container.appendChild(p);
-  }
-  setTimeout(()=>container.innerHTML='', 5000);
-}
-
-function retryQuiz() {
-  sfxClick();
-  const prog = loadProgress();
-  // Find weakest topics from current selection
-  currentQIndex = 0; score = 0; streak = 0;
-  sessionResults = []; questionTimes = []; totalTime = 0;
-  
-  // Reshuffle same topics
-  let pool = [];
-  selectedTopics.forEach(t => {
-    if (QB[t]) pool.push(...QB[t].map(q=>({...q,_topic:t})));
-  });
-  pool = shuffle(pool);
-  currentQuestions = pool.slice(0, QUESTIONS_PER_QUIZ);
-  
-  showScreen('quiz');
-  loadQuestion();
-}
-
-// ===================== PROGRESS =====================
-function showProgress() {
-  sfxClick();
-  const prog = loadProgress();
-  document.getElementById('progressPlayerName').textContent = `${playerName}'s Progress Dashboard`;
-  
-  // Overall
-  const totalQ = prog.totalQuestions || 0;
-  let totalCorrect = 0;
-  Object.values(prog.topicStats || {}).forEach(s => totalCorrect += s.correct || 0);
-  const overallPct = totalQ > 0 ? Math.round((totalCorrect/totalQ)*100) : 0;
-  document.getElementById('overallFill').style.width = overallPct + '%';
-  document.getElementById('overallText').textContent = overallPct + '% accuracy';
-  document.getElementById('overallQuestions').textContent = totalQ + ' questions answered';
-  
-  // Topic performance
-  const grid = document.getElementById('topicPerfGrid');
-  grid.innerHTML = '';
-  TOPICS.forEach(t => {
-    const s = (prog.topicStats || {})[t.id] || {attempts:0,correct:0};
-    const pct = s.attempts > 0 ? Math.round((s.correct/s.attempts)*100) : 0;
-    const card = document.createElement('div');
-    card.className = 'tpg-card';
-    card.innerHTML = `
-      <div class="tpg-name">${t.icon} ${t.name}</div>
-      <div class="tpg-stats"><span>${s.correct||0}/${s.attempts||0} correct</span><span style="color:${t.color}">${pct}%</span></div>
-      <div class="tpg-bar"><div class="tpg-fill" style="width:${pct}%;background:${t.color}"></div></div>`;
-    grid.appendChild(card);
-  });
-  
-  // History
-  const list = document.getElementById('historyList');
-  const sessions = (prog.sessions || []).slice(0,10);
-  if (sessions.length === 0) {
-    list.innerHTML = '<p style="color:var(--text-dim);font-size:0.9rem;">No sessions yet. Start practising!</p>';
-  } else {
-    list.innerHTML = sessions.map(s => {
-      const g = s.grade || getGrade(s.pct||0);
-      const gc = g.startsWith('A') ? 'var(--success)' : g==='B' ? 'var(--accent)' : g==='C' ? 'var(--warning)' : 'var(--danger)';
-      return `<div class="history-item">
-        <div><div class="hi-topic">${s.topics}</div><div class="hi-time">${s.date} ${s.time} · ${s.mode||'practice'} mode</div></div>
-        <div style="display:flex;align-items:center;gap:12px;">
-          <div class="hi-score" style="color:${gc}">${s.score}/${s.total}</div>
-          <div class="hi-grade" style="background:${gc}22;color:${gc};border:1px solid ${gc}44">${g}</div>
-        </div>
-      </div>`;
+  const hist=document.getElementById('histList');
+  const ses=(p.sessions||[]).slice(0,8);
+  if(!ses.length){hist.innerHTML='<p style="color:var(--dim);font-size:0.85rem;">Tiada sesi lagi.</p>';}
+  else{
+    hist.innerHTML=ses.map(s=>{
+      const gc=s.grade==='A'||s.grade==='A*'?'var(--green)':s.grade==='B'?'var(--blue)':s.grade==='C'?'var(--yellow)':'var(--red)';
+      return `<div class="hist-item"><div><div class="hist-topic">${s.skill}</div><div class="hist-time">${s.date} ${s.time}</div></div><div style="display:flex;align-items:center;gap:10px;"><div class="hist-score" style="color:${gc}">${s.score}/${s.total}</div><div class="hist-grade" style="background:${gc}22;color:${gc};border:1px solid ${gc}44">${s.grade}</div></div></div>`;
     }).join('');
   }
-  
-  showScreen('progress-screen');
+  show('progress');
 }
 
-function clearProgress() {
-  sfxClick();
-  if (confirm('Clear all progress data? This cannot be undone.')) {
-    try { localStorage.removeItem('physicsAce_progress'); } catch(e){}
-    showProgress();
-  }
-}
+function clearProg(){sfxClick();if(confirm('Padam semua data prestasi?')){try{localStorage.removeItem('bm_prog');}catch(e){}showProgress();}}
 
-// ===================== INIT =====================
-document.getElementById('nameInput').addEventListener('keypress', e => {
-  if (e.key === 'Enter') startApp();
-});
-
-// Load saved name
-const savedName = loadName();
-if (savedName) document.getElementById('nameInput').value = savedName;
-
-// Particle float effect on landing
-document.querySelector('.logo-mark').classList.add('floating');
+// init
+document.getElementById('nameInput').addEventListener('keypress',e=>{if(e.key==='Enter')startApp();});
+const sn=loadName();if(sn)document.getElementById('nameInput').value=sn;
 </script>
 </body>
 </html>
